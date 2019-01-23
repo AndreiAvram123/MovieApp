@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">MovieApp</string>
+    <string name="error_invalid_email">Invalid email</string>
+    <string name="error_invalid_credentials">This email and password combination is incorrect</string>
+    <string name="log_in_button_hint">LOG IN</string>
+    <string name="resend_verification_button">RESEND VERIFICATION EMAIL</string>
+    <string name="email_verification_sent">We have sent a verification email ,please use the instructions in the email.When done,press next .</string>
+    <string name="next_button">NEXT</string>
+    <string name="no">NO</string>
+    <string name="ok">OK</string>
+    <string name="empty_password">Please enter the password</string>
+    <string name="create_account_hint">CREATE AN ACCOUNT</string>
+    <string name="password">PASSWORD</string>
+    <string name="enter_email">ENTER YOUR EMAIL</string>
+    <string name="choose_password">CHOOSE A PASSWORD</string>
+    <string name="reenter_password">ENTER YOU PASSWORD AGAIN</string>
+    <string name="password_match">PASSWORDS MUST MATCH</string>
+    <string name="no_password">PLEASE ENTER A PASSWORD</string>
+    <string name="api_key">55398af9b60eda4997b848dd5ccf7d44</string>
+    <string name="new_releases">NEW RELEASES</string>
+    <string name="request_format_image">https://image.tmdb.org/t/p/w300</string>
+    <string name="search_hint">Search movies</string>
+    <string name="error_no_result">NO RESULTS FOR YOUR SEARCH</string>
+</resources>
