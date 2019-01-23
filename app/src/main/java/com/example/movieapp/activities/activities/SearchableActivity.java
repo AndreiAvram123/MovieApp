@@ -35,12 +35,10 @@ public class SearchableActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_searchable);
-
         makeAppFullscreen();
         recyclerView = findViewById(R.id.recycler_view_search_activity);
         no_results_error = findViewById(R.id.no_result_error_search);
         back_image = findViewById(R.id.back_image_seach);
-
         back_image.setOnClickListener(view -> finish());
 
 
@@ -49,6 +47,7 @@ public class SearchableActivity extends AppCompatActivity {
         if(Intent.ACTION_SEARCH.equals(searchIntent.getAction())){
             String query = searchIntent.getStringExtra(SearchManager.QUERY);
             pushRequest(getUriForRequest(query.trim()));
+
         }
     }
     private void makeAppFullscreen() {
@@ -118,7 +117,9 @@ public class SearchableActivity extends AppCompatActivity {
      * @return
      */
     private String getUriForRequest(String query){
-        return query.replace(' ','+');
+        String uriFormat = "https://api.themoviedb.org/3/search/movie?api_key=55398af9b60eda4997b848dd5ccf7d44&query=";
+
+        return uriFormat + query.replace(' ','+');
     }
 
 }

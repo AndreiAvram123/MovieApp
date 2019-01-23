@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="130dp"
     android:background="@drawable/round_shape"
-    android:backgroundTint="#3E5B7F"
 
     >
 
@@ -31,7 +30,7 @@
         android:layout_marginEnd="8dp"
         android:gravity="center"
         android:text="Fight Club"
-        android:textColor="#B28633"
+        android:textColor="#B5FFF3"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/image_simple_list"
@@ -45,7 +44,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:text="A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy..."
-        android:textColor="#FFD17C"
+        android:textColor="#B5FFF3"
         android:textSize="15sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
