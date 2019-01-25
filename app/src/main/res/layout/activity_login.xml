@@ -53,9 +53,9 @@
         app:layout_constraintTop_toBottomOf="@+id/login_label" />
 
     <EditText
-        android:textColor="#ffffff"
+        android:textColor="#005DB2"
         android:textSize="20sp"
-        android:backgroundTint="#0063E0"
+        android:backgroundTint="#00B27B"
         android:id="@+id/email_edit_text_main"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -71,8 +71,8 @@
 
     <EditText
         android:textSize="20sp"
-        android:textColor="#ffffff"
-        android:backgroundTint="#0063E0"
+        android:textColor="#005DB2"
+        android:backgroundTint="#00B27B"
         android:id="@+id/password_edit_text_main"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

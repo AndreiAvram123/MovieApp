@@ -2,30 +2,35 @@ package com.example.movieapp.activities.activities;
 
 import android.app.SearchManager;
 import android.content.Context;
-import android.graphics.Rect;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.movieapp.R;
-import com.example.movieapp.activities.Model.CustomDivider;
 import com.example.movieapp.activities.Model.Movie;
 import com.example.movieapp.activities.Model.Useful;
-import com.example.movieapp.activities.adapters.MainActivityAdapter;
+import com.example.movieapp.activities.fragments.BaseFragment;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,11 +39,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-
-    private static final String TAG = MainActivity.class.getSimpleName();
-    private RecyclerView recyclerView;
+    private ViewPager viewPager;
     private ArrayList<Movie> popularMovies;
+    private ArrayList<Movie> upcomingMovies;
     private static final String popularMoviesUri = "https://api.themoviedb.org/3/movie/popular?api_key=55398af9b60eda4997b848dd5ccf7d44&language=en-US&page=1";
+    private static final  String upcomingMoviesUri = "https://api.themoviedb.org/3/movie/upcoming?api_key=55398af9b60eda4997b848dd5ccf7d44&language=en-US&page=1&region=GB";
+    private DrawerLayout drawerLayout;
+    private SearchView searchView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,10 +54,11 @@ public class MainActivity extends AppCompatActivity {
 
         initializeViews();
 
+        setUpToolbar();
+
         makeAppFullscreen();
 
-
-        pushRequest(popularMoviesUri);
+        pushRequests();
     }
 
     private void makeAppFullscreen() {
@@ -58,15 +67,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
-        recyclerView = findViewById(R.id.recycler_view_main);
-        setUpToolbar();
-        setUpSearch();
+        TabLayout tabLayout = findViewById(R.id.tab_layout);
+        viewPager = findViewById(R.id.viewPager);
+        drawerLayout = findViewById(R.id.drawer_layout);
+        /**
+         * The standard way of updating the header layout
+         */
+        NavigationView navigationView = findViewById(R.id.nav_view);
+       View header_layout = navigationView.getHeaderView(0);
+       TextView email = header_layout.findViewById(R.id.email_address_drawer);
+       email.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
     }
 
     private void setUpToolbar() {
         Toolbar toolbar = findViewById(R.id.main_activity_toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("");
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
 
 
     }
@@ -75,71 +94,106 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.menu_main,menu);
-        SearchView searchView = (SearchView) menu.findItem(R.id.search_bar).getActionView();
+        searchView = (SearchView) menu.findItem(R.id.search_bar).getActionView();
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        //set this to false if you want the searchView
-        //to work properly
-        searchView.setIconifiedByDefault(false);
-
+        searchView.setIconifiedByDefault(true);
         return true;
     }
 
-    /**
-     * This method is used in order to
-     * set up the searchBar in the app
-     */
-     private void setUpSearch() {
-
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                  drawerLayout.openDrawer(Gravity.START);
+                  return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
+
+
+
+
+
 
     /**
      * This method pushed a request in order to get data
      * from the servers
      * @param url -
      */
-    private void pushRequest(String url) {
+    private void pushRequests() {
         //initialize the queue
-       RequestQueue requestQueue =  Volley.newRequestQueue(this);
-       Log.d(TAG,url);
-       //request a string response from the url
-       StringRequest dataRequest = new StringRequest(Request.Method.GET,url,
-               response -> {
-                processResponse(response);
-               runOnUiThread(()->updateUI());
-               }, error ->{
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+       //request a string response from the url for popular movies
+       StringRequest popularMoviesRequest = new StringRequest(Request.Method.GET,popularMoviesUri,
+               response -> runOnUiThread(()-> popularMovies = getMovies(response)), error ->{
 
        });
-       requestQueue.add(dataRequest);
+
+       StringRequest upcomingMoviesRequest = new StringRequest(Request.Method.GET,upcomingMoviesUri,
+               //REMEMBER THAT OPERATIONS SHOULD BE DONE IN
+               //THE MAIN THREAD
+               response -> runOnUiThread(()-> {
+                   upcomingMovies = getMovies(response);
+                   //when we finish with the request we update the UI
+                   updateUI();
+               }), error->{
+
+       });
+
+
+
+       requestQueue.add(popularMoviesRequest);
+       requestQueue.add(upcomingMoviesRequest);
     }
+
+
+
 
     private void updateUI() {
-        createRecyclerView();
-    }
+        viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
 
-    private void createRecyclerView() {
-        MainActivityAdapter mainAdapter = new MainActivityAdapter(popularMovies);
-        recyclerView.setAdapter(mainAdapter);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.addItemDecoration(new CustomDivider(15));
+            @Override
+            public Fragment getItem(int i) {
+                switch (i){
+                    case 0: return BaseFragment.newInstance(popularMovies);
+                    case 1: return BaseFragment.newInstance(upcomingMovies);
+                    default: return null;
+                }
+            }
+
+            @Override
+            public int getCount() {
+                return 2;
+            }
+
+            @Nullable
+            @Override
+            public CharSequence getPageTitle(int position) {
+                switch (position){
+                    case 0 :return "Popular Movies";
+                    case 1: return "Upcoming Movies";
+                    default: return null;
+                }
+            }
+        });
     }
 
     /**
      * This method processes the JSON data downloaded from
-     * the servers and adds to the popularMovies ArrayList
-     * 10 movies .The number of movies can be changed any time we
-     * want
+     * the servers and returns an ArrayList<Movie> of maximum
+     * 10 movies
      * @param response-the JSON data as String format
+     *
+     *
      */
-    private void processResponse(String response)  {
-       popularMovies = new ArrayList<>();
+    private ArrayList<Movie> getMovies(String response)  {
+        ArrayList<Movie> movies = new ArrayList<>();
        try{
-       JSONObject resultObject = new JSONObject(response);
-        JSONArray results = resultObject.getJSONArray("results");
+       JSONObject requestObject = new JSONObject(response);
+        JSONArray results = requestObject.getJSONArray("results");
         //parse the first 10 objects
-        for(int i =0;i< 10;i++){
+        for(int i =0;i< 10 && i< response.length();i++){
             JSONObject currentMovieJSONFormat = results.getJSONObject(i);
             Movie currentMovie = new Movie(
                     currentMovieJSONFormat.getString("overview"),
@@ -147,12 +201,13 @@ public class MainActivity extends AppCompatActivity {
                     Useful.convertDate(currentMovieJSONFormat.getString("release_date")),
                     getString(R.string.request_format_image)+currentMovieJSONFormat.getString("poster_path")
             );
-            popularMovies.add(currentMovie);
+            movies.add(currentMovie);
 
         }
        }catch(JSONException jsonE){
          jsonE.printStackTrace();
        }
+       return movies;
     }
 
     @Override

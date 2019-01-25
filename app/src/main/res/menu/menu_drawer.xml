@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Favorite movies"
+          android:id="@+id/favorite_movies_item"
+         android:icon="@drawable/ic_favorite_black_24dp"
+        />
+    <item android:title="Edit profile"
+        android:id="@+id/edit_profile_item"
+        android:icon="@drawable/ic_edit_black_24dp"
+        />
+</menu>

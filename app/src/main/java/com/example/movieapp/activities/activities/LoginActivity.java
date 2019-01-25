@@ -45,20 +45,20 @@ public class LoginActivity extends AppCompatActivity {
         emailEditText.setOnFocusChangeListener((v, hasFocus) -> {
            if(hasFocus){
                emailEditText.getBackground()
-                       .mutate().setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_ATOP);
+                       .mutate().setColorFilter(Color.parseColor("#005DB2"), PorterDuff.Mode.SRC_ATOP);
            }else {
                emailEditText.getBackground()
-                       .mutate().setColorFilter(Color.parseColor("#0063E0"), PorterDuff.Mode.SRC_ATOP);
+                       .mutate().setColorFilter(Color.parseColor("#00B27B"), PorterDuff.Mode.SRC_ATOP);
            }
         });
 
         passwordEditText.setOnFocusChangeListener((v, hasFocus) -> {
             if(hasFocus){
                 passwordEditText.getBackground()
-                        .mutate().setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_ATOP);
+                        .mutate().setColorFilter(Color.parseColor("#005DB2"), PorterDuff.Mode.SRC_ATOP);
             }else {
                 passwordEditText.getBackground()
-                        .mutate().setColorFilter(Color.parseColor("#0063E0"), PorterDuff.Mode.SRC_ATOP);
+                        .mutate().setColorFilter(Color.parseColor("#00B27B"), PorterDuff.Mode.SRC_ATOP);
             }
         });
 
