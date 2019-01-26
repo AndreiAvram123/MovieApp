@@ -13,20 +13,22 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".activities.activities.EditProfileActivity"></activity>
+
         <meta-data
             android:name="android.app.default_searchable"
             android:value=".activities.activities.SearchableActivity" />
 
-        <activity android:name=".activities.activities.SearchableActivity"
+        <activity
+            android:name=".activities.activities.SearchableActivity"
             android:launchMode="singleTop">
             <intent-filter>
-            <action android:name="android.intent.action.SEARCH" />
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
 
-        </intent-filter>
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
-
         </activity>
         <activity android:name=".activities.activities.SignUpActivity" />
         <activity android:name=".activities.activities.EmailVerificationActivity" />
@@ -37,14 +39,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".activities.activities.MainActivity">
-
-
-
-
-        </activity>
-
+        <activity android:name=".activities.activities.MainActivity"></activity>
     </application>
 
 </manifest>

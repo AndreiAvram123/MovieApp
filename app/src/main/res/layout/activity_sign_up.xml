@@ -62,7 +62,7 @@
 
     <TextView
         android:id="@+id/enter_password_hint2"
-        style="@style/default_style_view"
+        style="@style/default_style_textView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -93,7 +93,7 @@
 
     <TextView
         android:id="@+id/enter_password_hint"
-        style="@style/default_style_view"
+        style="@style/default_style_textView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -107,7 +107,7 @@
 
     <TextView
         android:id="@+id/textView3"
-        style="@style/default_style_view"
+        style="@style/default_style_textView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -120,7 +120,7 @@
         app:layout_constraintTop_toBottomOf="@+id/create_account_hint" />
 
     <TextView
-        style="@style/default_style_view"
+        style="@style/default_style_textView"
         android:id="@+id/create_account_hint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

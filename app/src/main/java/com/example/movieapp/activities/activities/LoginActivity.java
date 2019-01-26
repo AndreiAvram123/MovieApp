@@ -25,6 +25,9 @@ public class LoginActivity extends AppCompatActivity {
     private TextView errorMessage;
     private ProgressBar loggingProgressBar;
     private Button signInButton;
+    private Button signUpButton;
+    private TextView emailHint;
+    private TextView passwordHint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +40,8 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private void initializeView() {
+        emailHint = findViewById(R.id.email_hint_login);
+        passwordHint = findViewById(R.id.password_hint_login);
         emailEditText = findViewById(R.id.email_edit_text_main);
         passwordEditText = findViewById(R.id.password_edit_text_main);
         errorMessage = findViewById(R.id.error_message_text_view);
@@ -45,27 +50,32 @@ public class LoginActivity extends AppCompatActivity {
         emailEditText.setOnFocusChangeListener((v, hasFocus) -> {
            if(hasFocus){
                emailEditText.getBackground()
-                       .mutate().setColorFilter(Color.parseColor("#005DB2"), PorterDuff.Mode.SRC_ATOP);
+                       .mutate().setColorFilter(Color.parseColor("#76B900"), PorterDuff.Mode.SRC_ATOP);
+               emailHint.setTextColor(Color.parseColor("#A5B253"));
+
            }else {
                emailEditText.getBackground()
-                       .mutate().setColorFilter(Color.parseColor("#00B27B"), PorterDuff.Mode.SRC_ATOP);
+                       .mutate().setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_ATOP);
+               emailHint.setTextColor(Color.parseColor("#ffffff"));
            }
         });
 
         passwordEditText.setOnFocusChangeListener((v, hasFocus) -> {
             if(hasFocus){
                 passwordEditText.getBackground()
-                        .mutate().setColorFilter(Color.parseColor("#005DB2"), PorterDuff.Mode.SRC_ATOP);
+                        .mutate().setColorFilter(Color.parseColor("#76B900"), PorterDuff.Mode.SRC_ATOP);
+                passwordHint.setTextColor(Color.parseColor("#A5B253"));
             }else {
                 passwordEditText.getBackground()
-                        .mutate().setColorFilter(Color.parseColor("#00B27B"), PorterDuff.Mode.SRC_ATOP);
+                        .mutate().setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_ATOP);
+                passwordHint.setTextColor(Color.parseColor("#ffffff"));
             }
         });
 
         signInButton  = findViewById(R.id.sign_in_button);
         signInButton.setOnClickListener(view -> signInUser());
 
-        Button signUpButton = findViewById(R.id.sign_up_button);
+        signUpButton= findViewById(R.id.sign_up_button);
         signUpButton.setOnClickListener(view ->signUpUser());
 
     }
@@ -120,7 +130,10 @@ public class LoginActivity extends AppCompatActivity {
         if(signInButton.getVisibility() == View.VISIBLE){
             signInButton.setVisibility(View.INVISIBLE);
             loggingProgressBar.setVisibility(View.VISIBLE);
+            signUpButton.setClickable(false);
+
         }else {
+            signUpButton.setClickable(true);
             signInButton.setVisibility(View.VISIBLE);
             loggingProgressBar.setVisibility(View.INVISIBLE);
         }

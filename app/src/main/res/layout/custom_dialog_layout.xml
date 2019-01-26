@@ -10,7 +10,7 @@
 
     <TextView
         android:id="@+id/message_custom_dialog"
-        style="@style/default_style_view"
+        style="@style/default_style_textView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"

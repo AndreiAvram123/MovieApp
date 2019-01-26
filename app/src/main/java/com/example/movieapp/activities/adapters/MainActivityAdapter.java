@@ -32,7 +32,7 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
           viewHolder.overview.setText(movies.get(i).getOverview());
           viewHolder.title.setText(movies.get(i).getTitle());
-        Picasso.get()
+          Picasso.get()
                 .load(movies.get(i).getPosterPath())
                 .placeholder(R.drawable.rsz_no_image)
                 .into(viewHolder.poster_image);
