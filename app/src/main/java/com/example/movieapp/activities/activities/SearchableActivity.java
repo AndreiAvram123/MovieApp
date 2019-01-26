@@ -69,7 +69,7 @@ public class SearchableActivity extends AppCompatActivity {
     }
 
     private void updateUI(String responseData) {
-       recyclerView.setAdapter(new MainActivityAdapter(processResponse(responseData)));
+       recyclerView.setAdapter(new MainActivityAdapter(processResponse(responseData),this));
        recyclerView.setHasFixedSize(true);
        recyclerView.addItemDecoration(new CustomDivider(15));
        recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -92,7 +92,10 @@ public class SearchableActivity extends AppCompatActivity {
                         movieJsonFormat.getString("overview"),
                         movieJsonFormat.getString("title"),
                         movieJsonFormat.getString("release_date"),
-                       getString(R.string.request_format_image)+ movieJsonFormat.getString("poster_path")
+                       getString(R.string.request_format_image)+ movieJsonFormat.getString("poster_path"),
+                       movieJsonFormat.getDouble("vote_average"),
+                        movieJsonFormat.getInt("id"),
+                        getGenresArray(movieJsonFormat)
                 );
                 position ++;
                 movies.add(movie);
@@ -120,6 +123,13 @@ public class SearchableActivity extends AppCompatActivity {
         String uriFormat = "https://api.themoviedb.org/3/search/movie?api_key=55398af9b60eda4997b848dd5ccf7d44&query=";
 
         return uriFormat + query.replace(' ','+');
+    }
+    private int[] getGenresArray(JSONObject currentMovieJSONFormat) throws JSONException {
+        JSONArray genresArrayJson = currentMovieJSONFormat.getJSONArray("genre_ids");
+        int [] genres = new int[genresArrayJson.length()];
+        for(int i =0;i< genresArrayJson.length();i++)
+            genres[i]= genresArrayJson.getInt(i);
+        return genres;
     }
 
 }

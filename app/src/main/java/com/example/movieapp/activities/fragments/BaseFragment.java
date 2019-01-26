@@ -38,7 +38,7 @@ public class BaseFragment extends Fragment {
         View view = inflater.inflate(R.layout.layout_base_fragment,container,false);
         recyclerView = view.findViewById(R.id.recycler_view_base_fragment);
         ArrayList<Movie> movies = getArguments().getParcelableArrayList(KEY_MOVIES_ARRAY);
-        recyclerView.setAdapter(new MainActivityAdapter(movies));
+        recyclerView.setAdapter(new MainActivityAdapter(movies,container.getContext()));
         recyclerView.setLayoutManager(new LinearLayoutManager(container.getContext()));
         recyclerView.addItemDecoration( new CustomDivider(15));
         recyclerView.setHasFixedSize(true);

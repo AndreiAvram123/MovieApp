@@ -240,7 +240,11 @@ public class MainActivity extends AppCompatActivity {
                     currentMovieJSONFormat.getString("overview"),
                     currentMovieJSONFormat.getString("title"),
                     Useful.convertDate(currentMovieJSONFormat.getString("release_date")),
-                    getString(R.string.request_format_image)+currentMovieJSONFormat.getString("poster_path")
+                    getString(R.string.request_format_image)+currentMovieJSONFormat.getString("poster_path"),
+                    currentMovieJSONFormat.getDouble("vote_average"),
+                    currentMovieJSONFormat.getInt("id"),
+                    //get the genres array
+                    getGenresArray(currentMovieJSONFormat)
             );
             movies.add(currentMovie);
 
@@ -249,6 +253,14 @@ public class MainActivity extends AppCompatActivity {
          jsonE.printStackTrace();
        }
        return movies;
+    }
+
+    private int[] getGenresArray(JSONObject currentMovieJSONFormat) throws JSONException {
+        JSONArray genresArrayJson = currentMovieJSONFormat.getJSONArray("genre_ids");
+        int [] genres = new int[genresArrayJson.length()];
+        for(int i =0;i< genresArrayJson.length();i++)
+            genres[i]= genresArrayJson.getInt(i);
+        return genres;
     }
 
     @Override

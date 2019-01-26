@@ -15,9 +15,11 @@ public class Useful {
 
     public static String convertDate(String date) {
         String newDate ="";
-        for(String s :date.split("-")){
-            newDate += s;
-        }
+        String [] strings = date.split("-");
+        for(int i =strings.length -1;i >= 1;i-- )
+            newDate = newDate +strings[i] + "-";
+        //remember to add the last one
+          newDate = newDate +strings[0];
         return newDate;
     }
 }

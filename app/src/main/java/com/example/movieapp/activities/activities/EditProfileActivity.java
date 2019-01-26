@@ -1,28 +1,40 @@
 package com.example.movieapp.activities.activities;
 
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 
 import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.Constraints;
+import com.example.movieapp.activities.Model.CustomDialog;
 import com.example.movieapp.activities.fragments.EditProfileFragment;
 import com.example.movieapp.activities.fragments.UpdateCredentialFragment;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class EditProfileActivity extends AppCompatActivity implements EditProfileFragment.EditProfileFragmentInterface,
         UpdateCredentialFragment.UpdateCredentialFragmentInterface {
 
     private static final String KEY_UPDATE_CREDENTIAL_FRAGMENT = "KEY_UPDATE_CREDENTIAL_FRAGMENT";
-    EditProfileFragment editProfileFragment;
-    FragmentManager fragmentManager;
-    FragmentTransaction fragmentTransaction;
+    private EditProfileFragment editProfileFragment;
+    private FragmentManager fragmentManager;
+    private FragmentTransaction fragmentTransaction;
+    private FirebaseUser firebaseUser;
     public static final String KEY_EDIT_PROFILE_FRAGMENT ="EDIT_PROFILE_FRAGMENT";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
+
+         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         makeActivityFullscreen();
 
@@ -35,6 +47,69 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+    }
+
+
+
+    private void showErrorDialog() {
+        CustomDialog errorDialog = new CustomDialog(this,
+                        getString(R.string.operation_unsuccessful));
+        errorDialog.show();
+    }
+
+    /**
+     * This method is used in order to change the nickname
+     * of the current user in the Firebase database
+     * We need to use a UserProfileChangeRequest object in
+     * order to use the update .The object is created
+     * using an inner class named Builder
+     *
+     * IF THE TASK IS successful display a message to the
+     *      * user informing him that everything has gone well
+     *      * OTHERWISE display and error dialog
+     * @param newNickname
+     */
+    private void changeNicknameInDatabase(String newNickname) {
+        firebaseUser.updateProfile(new UserProfileChangeRequest.Builder()
+                .setDisplayName(newNickname)
+                .build()).addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                showMessageDialog();
+                goBackToViewPagerFragment();
+            }else {
+                showErrorDialog();
+            }
+        });
+
+    }
+
+    /**
+     * Update the password in the Firebase database
+     * IF THE TASK IS successful display a message to the
+     * user informing him that everything has gone well
+     * OTHERWISE display and error dialog
+     * @param newPassword
+     */
+    private void changePasswordInDatabase(String newPassword) {
+        firebaseUser.updatePassword(newPassword).addOnCompleteListener(task->{
+             if(task.isSuccessful()){
+                 showMessageDialog();
+                 goBackToViewPagerFragment();
+             }else {
+                 showErrorDialog();
+             }
+        });
+    }
+
+    private void changeEmailInDatabase(String newEmail){
+        firebaseUser.updateEmail(newEmail).addOnCompleteListener(task ->{
+            if(task.isSuccessful()){
+                showMessageDialog();
+                goBackToViewPagerFragment();
+            }else {
+                showErrorDialog();
+            }
+        });
     }
 
     public void initializeUI(){
@@ -59,6 +134,16 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
     }
 
     /**
+     * Display a message dialog informing
+     * the user that the operation
+     * has been successful
+     */
+    private void showMessageDialog() {
+        CustomDialog customDialog = new CustomDialog(this,
+                getString(R.string.operation_successful));
+        customDialog.show();
+    }
+    /**
      * ---------------------------------------------------------------------------------------------
      *                        INTERFACE METHODS FROM FRAGMENTS
      */
@@ -82,6 +167,7 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
     @Override
     public void changeNickname() {
        showUpdateCredentialFragment(Constraints.KEY_NICKNAME_CREDENTIAL);
+
     }
 
     @Override
@@ -91,16 +177,23 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
 
     @Override
     public void updateEmail(String newEmail) {
-
+            changeEmailInDatabase(newEmail);
     }
 
     @Override
     public void updatePassword(String newPassword) {
-
+             changePasswordInDatabase(newPassword);
     }
+
+
 
     @Override
     public void updateNickname(String newNickname) {
+        changeNicknameInDatabase(newNickname);
 
     }
+
+
+
+
 }

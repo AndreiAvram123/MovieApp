@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.movieapp.R;
@@ -88,6 +89,11 @@ public class UpdateCredentialFragment extends Fragment {
         }
 
         finish.setOnClickListener(button ->{
+             //show progress bar and hide the button
+            ProgressBar loadingIcon = view.findViewById(R.id.progressBar_update_credentials);
+            loadingIcon.setVisibility(View.VISIBLE);
+            finish.setVisibility(View.INVISIBLE);
+
             switch (credential){
                 case Constraints.KEY_EMAIL_CREDENTIAL :
                     String email = field2.getText().toString().trim();

@@ -29,11 +29,15 @@
     <string name="change_password">CHANGE PASSWORD</string>
     <string name="finish">FINISH</string>
     <string name="new_email">NEW EMAIL</string>
-    <string name ="new_password">NEW PASSWORD</string>
-    <string name ="confirm_new_password">CONFIRM NEW PASSWORD</string>
-    <string name = "new_nickname">NEW NICKNAME</string>
-    <string name ="change_email_title">CHANGE EMAIL</string>
-    <string name ="change_password_title">CHANGE PASSWORD</string>
+    <string name="new_password">NEW PASSWORD</string>
+    <string name="confirm_new_password">CONFIRM NEW PASSWORD</string>
+    <string name="new_nickname">NEW NICKNAME</string>
+    <string name="change_email_title">CHANGE EMAIL</string>
+    <string name="change_password_title">CHANGE PASSWORD</string>
     <string name="change_nickname_title">CHANGE NICKNAME</string>
-    <string name ="error_invalid_nickname">Invalid nickname</string>
+    <string name="error_invalid_nickname">Invalid nickname</string>
+    <string name="operation_successful">We have successfully changed your profile details.</string>
+    <string name="operation_unsuccessful">Something has gone wrong.We were unable to update your profile details</string>
+    <string name="release_date">Release Date : </string>
+    <string name="genre">Genre : </string>
 </resources>

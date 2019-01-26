@@ -1,7 +1,6 @@
 package com.example.movieapp.activities.fragments;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -33,6 +32,8 @@ private EditProfileFragmentInterface editProfileFragmentInterface;
         Button changeEmailButton = view.findViewById(R.id.change_email_button);
         Button changePasswordButton = view.findViewById(R.id.change_password_button);
         Button changeNicknameButton = view.findViewById(R.id.change_nickname_button);
+        //TODO
+        //implement this feature
         Button changeProfilePictureButton = view.findViewById(R.id.change_profile_picture_button);
 
         backImage.setOnClickListener(image-> getActivity().finish());

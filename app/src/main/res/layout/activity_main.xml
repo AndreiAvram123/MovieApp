@@ -29,7 +29,7 @@
          android:layout_marginTop="16dp"
          android:layout_marginEnd="16dp"
          android:background="?attr/colorPrimary"
-         android:backgroundTint="#08C9BD"
+         android:backgroundTint="#609600"
          android:minHeight="?attr/actionBarSize"
          android:theme="?attr/actionBarTheme"
          app:layout_constraintBottom_toTopOf="@+id/frameLayout_placeholder"
