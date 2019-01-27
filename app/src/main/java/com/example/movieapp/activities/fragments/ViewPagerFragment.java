@@ -19,6 +19,8 @@ import java.util.ArrayList;
 public class ViewPagerFragment extends Fragment {
 
     private ViewPager viewPager;
+    public PopularMoviesFragment popularMoviesFragment;
+    public UpcomingMoviesFragment upcomingMoviesFragment;
 
     /**
      *  YOU NEED TO PUT THE ARRAYS INTO A BUNDLE
@@ -46,13 +48,15 @@ public class ViewPagerFragment extends Fragment {
         viewPager = view.findViewById(R.id.viewPager);
         ArrayList<Movie> upcomingMovies = getArguments().getParcelableArrayList(Constraints.KEY_UPCOMING_MOVIES_ARRAY);
         ArrayList<Movie> popularMovies = getArguments().getParcelableArrayList(Constraints.KEY_POPULAR_MOVIES_ARRAY);
+        popularMoviesFragment = PopularMoviesFragment.newInstance(popularMovies);
+        upcomingMoviesFragment = UpcomingMoviesFragment.newInstance(upcomingMovies);
         viewPager.setAdapter(new FragmentPagerAdapter(getChildFragmentManager()) {
 
             @Override
             public Fragment getItem(int i) {
                 switch (i){
-                    case 0: return BaseFragment.newInstance(popularMovies);
-                    case 1: return BaseFragment.newInstance(upcomingMovies);
+                    case 0: return popularMoviesFragment;
+                    case 1: return upcomingMoviesFragment;
                     default: return null;
                 }
             }

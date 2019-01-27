@@ -69,10 +69,13 @@ public class SearchableActivity extends AppCompatActivity {
     }
 
     private void updateUI(String responseData) {
-       recyclerView.setAdapter(new MainActivityAdapter(processResponse(responseData),this));
-       recyclerView.setHasFixedSize(true);
-       recyclerView.addItemDecoration(new CustomDivider(15));
-       recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        MainActivityAdapter mainActivityAdapter = new MainActivityAdapter();
+        mainActivityAdapter.addMovies(processResponse(responseData));
+
+        recyclerView.setAdapter(mainActivityAdapter);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.addItemDecoration(new CustomDivider(20));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     /**

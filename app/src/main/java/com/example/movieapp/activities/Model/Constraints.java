@@ -1,7 +1,5 @@
 package com.example.movieapp.activities.Model;
 
-import java.util.HashMap;
-
 public class Constraints {
     public static final String KEY_UPCOMING_MOVIES_ARRAY = "UPCOMING_MOVIES_ARRAY";
     public static final String KEY_POPULAR_MOVIES_ARRAY = "POPULAR_MOVIES_ARRAY";
@@ -10,6 +8,8 @@ public class Constraints {
     public static final String KEY_NICKNAME_CREDENTIAL = "NICKNAME";
     public static final String KEY_CREDENTIAL = "CREDENTIAL";
     public static final String KEY_MOVIE = "KEY_MOVIE";
+    public static final String UPCOMING_MOVIES_FRAGMENT = "UPCOMING_MOVIES_FRAGMENT";
+    public static final String POPULAR_MOVIES_FRAGMENT = "POPULAR_MOVIES_FRAGMENT";
     public static String getGenre(int genreID){
         switch (genreID){
             case 28 : return "Action";

@@ -4,11 +4,9 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -21,16 +19,17 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.movieapp.R;
+import com.example.movieapp.activities.Model.Constraints;
 import com.example.movieapp.activities.Model.Movie;
 import com.example.movieapp.activities.Model.Useful;
-import com.example.movieapp.activities.fragments.EditProfileFragment;
+import com.example.movieapp.activities.adapters.MainActivityAdapter;
+import com.example.movieapp.activities.fragments.BaseFragment;
 import com.example.movieapp.activities.fragments.ViewPagerFragment;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -40,7 +39,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MainActivityAdapter.MainActivityAdapterInterface {
 
     private static final String VIEW_PAGER_FRAGMENT = "VIEW_PAGER_FRAGMENT";
     private String currentFragment;
@@ -57,10 +56,12 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         fragmentManager = getSupportFragmentManager();
 
@@ -195,7 +196,8 @@ public class MainActivity extends AppCompatActivity {
                //REMEMBER THAT OPERATIONS SHOULD BE DONE IN
                //THE MAIN THREAD
                response -> runOnUiThread(()-> {
-                  upcomingMovies = getMovies(response);
+
+                   upcomingMovies = getMovies(response);
                    //when we finish with the request we update the UI
                    updateUI();
                }), error->{
@@ -204,7 +206,8 @@ public class MainActivity extends AppCompatActivity {
 
         StringRequest popularMoviesRequest = new StringRequest(Request.Method.GET,popularMoviesUri,
                 response -> runOnUiThread(()-> {
-                    popularMovies = getMovies(response);
+
+                   popularMovies= getMovies(response);
                     //the call is made in the background, the second requests
                     //may not wait for the first one to finish
                     requestQueue.add(upcomingMoviesRequest);
@@ -224,8 +227,9 @@ public class MainActivity extends AppCompatActivity {
      * This method processes the JSON data downloaded from
      * the servers and returns an ArrayList<Movie> of maximum
      * 10 movies
+     * We count the movies added in the field
+     * numberOfMoviesFetched
      * @param response-the JSON data as String format
-     *
      *
      */
     private ArrayList<Movie> getMovies(String response)  {
@@ -233,8 +237,9 @@ public class MainActivity extends AppCompatActivity {
        try{
        JSONObject requestObject = new JSONObject(response);
         JSONArray results = requestObject.getJSONArray("results");
-        //parse the first 10 objects
-        for(int i =0;i< 10 && i< response.length();i++){
+
+
+        for(int i=0;  i< response.length();i++){
             JSONObject currentMovieJSONFormat = results.getJSONObject(i);
             Movie currentMovie = new Movie(
                     currentMovieJSONFormat.getString("overview"),
@@ -252,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
        }catch(JSONException jsonE){
          jsonE.printStackTrace();
        }
-       return movies;
+     return movies;
     }
 
     private int[] getGenresArray(JSONObject currentMovieJSONFormat) throws JSONException {
@@ -273,4 +278,17 @@ public class MainActivity extends AppCompatActivity {
         super.onRestart();
         searchView.setQuery("",false);
     }
+
+
+    @Override
+    public void requestLoading(int currentSize,String fragmentName) {
+        switch (fragmentName){
+            case Constraints.POPULAR_MOVIES_FRAGMENT:
+                viewPagerFragment.popularMoviesFragment.loadMoreMovies(currentSize);
+                break;
+            case  Constraints.UPCOMING_MOVIES_FRAGMENT:
+                viewPagerFragment.upcomingMoviesFragment.loadMoreMovies(currentSize);
+                break;
+        }
+     }
 }
