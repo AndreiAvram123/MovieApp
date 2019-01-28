@@ -140,9 +140,9 @@ public class MainActivityAdapter extends RecyclerView.Adapter {
     }
 
     private void startMovieExpandedActivity(int position) {
-        Intent startMovieActivityIntent = new Intent(context, MovieExpandedActivity.class);
-        startMovieActivityIntent.putExtra(Constraints.KEY_MOVIE,movies.get(position));
-        context.startActivity(startMovieActivityIntent);
+        Intent startExtendedMovieActivityIntent = new Intent(context, MovieExpandedActivity.class);
+        startExtendedMovieActivityIntent.putExtra(Constraints.KEY_MOVIE,movies.get(position));
+        context.startActivity(startExtendedMovieActivityIntent);
     }
 
     @Override

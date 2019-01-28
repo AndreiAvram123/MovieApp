@@ -48,10 +48,14 @@ public class MovieExpandedActivity extends AppCompatActivity {
         //build the genres String
         StringBuilder stringBuilder = new StringBuilder();
         int [] genres = movie.getGenres();
-        for(int i =0;i < genres.length -1;i++){
+        if(genres.length > 0){
+        for(int i =0;i < genres.length -1;i++) {
             stringBuilder.append(Constraints.getGenre(genres[i]) + " , ");
+         }
+            stringBuilder.append(Constraints.getGenre(genres[genres.length-1]));
         }
-        stringBuilder.append(Constraints.getGenre(genres[genres.length-1]));
+
+
 
         genre.setText(stringBuilder.toString());
     }
