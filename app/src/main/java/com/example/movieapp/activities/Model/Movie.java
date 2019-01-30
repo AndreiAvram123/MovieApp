@@ -1,16 +1,22 @@
 package com.example.movieapp.activities.Model;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+@Entity(tableName = "movies")
 public class Movie implements Parcelable {
+    @PrimaryKey
+    private int movieID;
     private String overview;
     private String title;
     private String releaseDate;
     private String posterPath;
     private double rating;
-    private int movieID;
-    private int [] genres;
+    private String  genres;
+    private boolean isSaved ;
 
     /**
      * REQUIRED CONSTRUCTOR IN ORDER
@@ -18,6 +24,7 @@ public class Movie implements Parcelable {
      * @param in- the parcel used to
      *          build the object
      */
+    @Ignore
     public Movie(Parcel in){
          overview = in.readString();
          title = in.readString();
@@ -25,11 +32,13 @@ public class Movie implements Parcelable {
          posterPath = in.readString();
          rating = in.readDouble();
          movieID = in.readInt();
-         genres = in.createIntArray();
+         genres = in.readString();
+         isSaved =false;
     }
 
+    @Ignore
     public Movie(String overview, String title, String releaseDate,
-                 String posterPath,double rating,int movieID,int [] genres) {
+                 String posterPath,double rating,int movieID,String genres) {
 
         this.overview = overview;
         this.title = title;
@@ -38,6 +47,11 @@ public class Movie implements Parcelable {
         this.rating = rating;
         this.movieID = movieID;
         this.genres = genres;
+        isSaved =false;
+    }
+    //default constructor for room
+    public Movie (){
+
     }
 
     public String getPosterPath() {
@@ -57,6 +71,14 @@ public class Movie implements Parcelable {
         }else {
             return overview;
         }
+    }
+
+    public boolean isSaved() {
+        return isSaved;
+    }
+
+    public void setSaved(boolean saved) {
+        isSaved = saved;
     }
 
     public void setOverview(String overview) {
@@ -96,11 +118,11 @@ public class Movie implements Parcelable {
         this.movieID = movieID;
     }
 
-    public int[] getGenres() {
+    public String getGenres() {
         return genres;
     }
 
-    public void setGenres(int[] genres) {
+    public void setGenres(String genres) {
         this.genres = genres;
     }
 
@@ -117,13 +139,15 @@ public class Movie implements Parcelable {
          dest.writeString(posterPath);
          dest.writeDouble(rating);
          dest.writeInt(movieID);
-         dest.writeIntArray(genres);
+         dest.writeString(genres);
     }
 
     /**
      * REQUIRED CREATOR IN ORDER TO USE THE PARCELABLE INTERFACE
      * IF NOT PROVIDED AN ERROR IS THROWN
+     * ANNOTATE IT IN ORDER FOR THE ROOM DATABASE TO IGNORE IT
      */
+    @Ignore
     public static final Creator CREATOR = new Creator() {
         @Override
         public Object createFromParcel(Parcel source) {

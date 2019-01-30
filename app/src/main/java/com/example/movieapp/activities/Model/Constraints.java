@@ -10,6 +10,10 @@ public class Constraints {
     public static final String KEY_MOVIE = "KEY_MOVIE";
     public static final String UPCOMING_MOVIES_FRAGMENT = "UPCOMING_MOVIES_FRAGMENT";
     public static final String POPULAR_MOVIES_FRAGMENT = "POPULAR_MOVIES_FRAGMENT";
+    public static final String KEY_SAVED_MOVIES = "SAVED_MOVIES_ARRAY";
+    public static final String SAVED_MOVIES_FRAGMENT = "SAVED_MOVIES_FRAGMENT";
+    public static final String VIEW_PAGER_FRAGMENT = "VIEW_PAGER_FRAGMENT";
+
     public static String getGenre(int genreID){
         switch (genreID){
             case 28 : return "Action";

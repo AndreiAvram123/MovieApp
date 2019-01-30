@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -18,11 +17,8 @@ import com.android.volley.toolbox.Volley;
 import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.CustomDivider;
 import com.example.movieapp.activities.Model.Movie;
-import com.example.movieapp.activities.adapters.MainActivityAdapter;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.example.movieapp.activities.Model.Useful;
+import com.example.movieapp.activities.adapters.MainAdapter;
 
 import java.util.ArrayList;
 
@@ -35,10 +31,13 @@ public class SearchableActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_searchable);
-        makeAppFullscreen();
+
+        Useful.makeActivityFullscreen(getWindow());
+
         recyclerView = findViewById(R.id.recycler_view_search_activity);
         no_results_error = findViewById(R.id.no_result_error_search);
         back_image = findViewById(R.id.back_image_seach);
+
         back_image.setOnClickListener(view -> finish());
 
 
@@ -49,6 +48,7 @@ public class SearchableActivity extends AppCompatActivity {
             pushRequest(getUriForRequest(query.trim()));
 
         }
+
     }
     private void makeAppFullscreen() {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -57,7 +57,7 @@ public class SearchableActivity extends AppCompatActivity {
 
 
     private void pushRequest(String uri) {
-        Log.d(TAG,uri);
+
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest dataRequest = new StringRequest(StringRequest.Method.GET,uri,
@@ -69,50 +69,21 @@ public class SearchableActivity extends AppCompatActivity {
     }
 
     private void updateUI(String responseData) {
-        MainActivityAdapter mainActivityAdapter = new MainActivityAdapter();
-        mainActivityAdapter.addMovies(processResponse(responseData));
+        MainAdapter mainAdapter = new MainAdapter();
+        ArrayList<Movie> searchedMovies = Useful.getMovies(responseData);
+        if(searchedMovies.isEmpty()){
+            no_results_error.setVisibility(View.VISIBLE);
+        }else {
+            mainAdapter.addMovies(searchedMovies);
+            recyclerView.setAdapter(mainAdapter);
+            recyclerView.setHasFixedSize(true);
+            recyclerView.addItemDecoration(new CustomDivider(20));
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        }
 
-        recyclerView.setAdapter(mainActivityAdapter);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.addItemDecoration(new CustomDivider(20));
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
-    /**
-     * This method return an ArrayList of maximum 5 movies
-     * @param responseData - data from the servers
-     * @return
-     */
-    private ArrayList<Movie> processResponse(String responseData) {
-        ArrayList<Movie> movies = new ArrayList<>();
-        try {
-            JSONObject object = new JSONObject(responseData);
-            JSONArray resultsArray = object.getJSONArray("results");
-            int position=0;
-            while(position < resultsArray.length() && position <5){
-                JSONObject movieJsonFormat = resultsArray.getJSONObject(position);
-                Movie movie = new Movie(
-                        movieJsonFormat.getString("overview"),
-                        movieJsonFormat.getString("title"),
-                        movieJsonFormat.getString("release_date"),
-                       getString(R.string.request_format_image)+ movieJsonFormat.getString("poster_path"),
-                       movieJsonFormat.getDouble("vote_average"),
-                        movieJsonFormat.getInt("id"),
-                        getGenresArray(movieJsonFormat)
-                );
-                position ++;
-                movies.add(movie);
-            }
-        }catch (JSONException jsonE){
-            jsonE.printStackTrace();
-            no_results_error.setVisibility(View.VISIBLE);
 
-        }
-        if(movies.isEmpty()){
-            no_results_error.setVisibility(View.VISIBLE);
-        }
-        return movies;
-    }
 
     /**
      * This method is used in order to replace empty spaces
@@ -124,15 +95,9 @@ public class SearchableActivity extends AppCompatActivity {
      */
     private String getUriForRequest(String query){
         String uriFormat = "https://api.themoviedb.org/3/search/movie?api_key=55398af9b60eda4997b848dd5ccf7d44&query=";
-
         return uriFormat + query.replace(' ','+');
     }
-    private int[] getGenresArray(JSONObject currentMovieJSONFormat) throws JSONException {
-        JSONArray genresArrayJson = currentMovieJSONFormat.getJSONArray("genre_ids");
-        int [] genres = new int[genresArrayJson.length()];
-        for(int i =0;i< genresArrayJson.length();i++)
-            genres[i]= genresArrayJson.getInt(i);
-        return genres;
-    }
+
 
 }
+

@@ -1,9 +1,11 @@
 package com.example.movieapp.activities.activities;
 
 import android.app.SearchManager;
+import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -16,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -25,23 +26,23 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.movieapp.R;
+import com.example.movieapp.activities.Model.AppDatabase;
 import com.example.movieapp.activities.Model.Constraints;
+import com.example.movieapp.activities.Model.CustomDialog;
 import com.example.movieapp.activities.Model.Movie;
 import com.example.movieapp.activities.Model.Useful;
-import com.example.movieapp.activities.adapters.MainActivityAdapter;
-import com.example.movieapp.activities.fragments.BaseFragment;
+import com.example.movieapp.activities.adapters.MainAdapter;
+import com.example.movieapp.activities.fragments.SavedMoviesFragment;
 import com.example.movieapp.activities.fragments.ViewPagerFragment;
+import com.example.movieapp.activities.interfaces.DatabaseInterface;
 import com.google.firebase.auth.FirebaseAuth;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MainActivityAdapter.MainActivityAdapterInterface {
+public class MainActivity extends AppCompatActivity
+        implements MainAdapter.MainAdapterInterface{
 
-    private static final String VIEW_PAGER_FRAGMENT = "VIEW_PAGER_FRAGMENT";
     private String currentFragment;
     private  ArrayList<Movie> popularMovies;
     private  ArrayList<Movie> upcomingMovies;
@@ -52,47 +53,67 @@ public class MainActivity extends AppCompatActivity implements MainActivityAdapt
     private ViewPagerFragment viewPagerFragment;
     private RequestQueue requestQueue;
     private FragmentManager fragmentManager;
-    private FragmentTransaction fragmentTransaction;
-
-
-
+    private SavedMoviesFragment savedMoviesFragment;
+    private DatabaseInterface databaseInterface;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        fragmentManager = getSupportFragmentManager();
-
-        initializeViews();
-
-        pushRequests();
-
-
-
-
+        initializeUI();
+        initializeDatabase();
+        getSavedMovies();
         setUpToolbar();
 
-        makeAppFullscreen();
-
-
+        if(isNetworkAvailable())
+        pushRequests();
 
     }
 
 
-
-    private void makeAppFullscreen() {
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    private boolean isNetworkAvailable() {
+        return true;
     }
 
-    private void initializeViews() {
+    /**
+     * Create a Thread object in order to
+     * perform operations on the Room database
+     * THIS IS REQUIRED BY ROOM : TO HAVE
+     * A BACKGROUND THREAD FOR DATABASE
+     * OPERATIONS
+     * @return
+     */
+    private void getSavedMovies() {
+       Thread backgroundThread = new Thread(
+               () -> {
+                  List<Movie> savedMovies = databaseInterface.selectAllMovies();
+                  savedMoviesFragment = SavedMoviesFragment.newInstance(savedMovies);
+               }
+       );
+       //always use start
+       backgroundThread.start();
+    }
+
+
+    private void initializeDatabase() {
+        //use getApplicationContext because data is related to the
+        //whole application
+        AppDatabase appDatabase = Room.databaseBuilder(getApplicationContext(),AppDatabase.class,
+                "movies_database").build();
+        databaseInterface = appDatabase.databaseInterface();
+    }
+
+    private void initializeUI() {
+        Useful.makeActivityFullscreen(getWindow());
+        fragmentManager = getSupportFragmentManager();
         drawerLayout = findViewById(R.id.drawer_layout);
 
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.getMenu().getItem(0).setChecked(true);
+
+
         navigationView.setNavigationItemSelectedListener(menuItem -> {
             switch (menuItem.getItemId()){
                 case R.id.edit_profile_item:
@@ -105,10 +126,17 @@ public class MainActivity extends AppCompatActivity implements MainActivityAdapt
                     drawerLayout.closeDrawers();
                     menuItem.setChecked(true);
                     uncheckItems(menuItem.getItemId(),navigationView.getMenu());
-                    if(!currentFragment.equals(VIEW_PAGER_FRAGMENT))
+                    if(!currentFragment.equals(Constraints.VIEW_PAGER_FRAGMENT))
                         showViewPagerFragment();
-
                     return true;
+
+                case R.id.saved_movies_item :
+                     drawerLayout.closeDrawers();
+                     menuItem.setChecked(true);
+                     uncheckItems(menuItem.getItemId(),navigationView.getMenu());
+                     showSavedMoviesFragment();
+                     currentFragment = Constraints.SAVED_MOVIES_FRAGMENT;
+                     return true;
 
 
 
@@ -123,6 +151,22 @@ public class MainActivity extends AppCompatActivity implements MainActivityAdapt
         email.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
     }
 
+    private void showSavedMoviesFragment() {
+        if(savedMoviesFragment != null){
+        currentFragment = Constraints.SAVED_MOVIES_FRAGMENT;
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frameLayout_placeholder,savedMoviesFragment,
+                Constraints.SAVED_MOVIES_FRAGMENT);
+        fragmentTransaction.commit();
+        }
+    }
+
+    /**
+     * Use this to uncheck items in the
+     * menu from the navigation drawer
+     * @param itemId
+     * @param menu
+     */
     private void uncheckItems(int itemId, Menu menu) {
         for(int i = 0;i < menu.size();i++){
             if(itemId != menu.getItem(i).getItemId()){
@@ -170,7 +214,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityAdapt
 
     private void showViewPagerFragment() {
         currentFragment = VIEW_PAGER_FRAGMENT;
-        fragmentTransaction = fragmentManager.beginTransaction();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frameLayout_placeholder,viewPagerFragment,VIEW_PAGER_FRAGMENT);
         fragmentTransaction.commit();
     }
@@ -186,6 +230,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityAdapt
     /**
      * This method pushes requests  in order to get data
      * from the movie database
+     *
      */
     private void pushRequests() {
         //initialize volley
@@ -197,8 +242,21 @@ public class MainActivity extends AppCompatActivity implements MainActivityAdapt
                //THE MAIN THREAD
                response -> runOnUiThread(()-> {
 
-                   upcomingMovies = getMovies(response);
-                   //when we finish with the request we update the UI
+                   upcomingMovies = Useful.getMovies(response);
+                   /**
+                    * SORT THE MOVIES BY DATE
+                    * The comparable interface works this
+                    * way
+                    * IF YOU WANT TO change the position of movie1
+                    * with the position of movie 2 then you must return 1(tell the
+                    * comparator "YES CHANGE THEM")
+                    * IF THE COMPARATOR RECEIVES 0 OR -1 DOES NOT DO ANYTHING
+                    */
+                   upcomingMovies.sort((movie1,movie2)-> movie1.getReleaseDate().compareTo(
+                           movie2.getReleaseDate()
+                   ));
+
+                   //UPDATE THE UI WHEN REQUEST FINISHES
                    updateUI();
                }), error->{
 
@@ -207,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityAdapt
         StringRequest popularMoviesRequest = new StringRequest(Request.Method.GET,popularMoviesUri,
                 response -> runOnUiThread(()-> {
 
-                   popularMovies= getMovies(response);
+                   popularMovies= Useful.getMovies(response);
                     //the call is made in the background, the second requests
                     //may not wait for the first one to finish
                     requestQueue.add(upcomingMoviesRequest);
@@ -221,53 +279,6 @@ public class MainActivity extends AppCompatActivity implements MainActivityAdapt
     }
 
 
-
-
-    /**
-     * This method processes the JSON data downloaded from
-     * the servers and returns an ArrayList<Movie> of maximum
-     * 10 movies
-     * We count the movies added in the field
-     * numberOfMoviesFetched
-     * @param response-the JSON data as String format
-     *
-     */
-    private ArrayList<Movie> getMovies(String response)  {
-        ArrayList<Movie> movies = new ArrayList<>();
-       try{
-       JSONObject requestObject = new JSONObject(response);
-        JSONArray results = requestObject.getJSONArray("results");
-
-
-        for(int i=0;  i< response.length();i++){
-            JSONObject currentMovieJSONFormat = results.getJSONObject(i);
-            Movie currentMovie = new Movie(
-                    currentMovieJSONFormat.getString("overview"),
-                    currentMovieJSONFormat.getString("title"),
-                    Useful.convertDate(currentMovieJSONFormat.getString("release_date")),
-                    getString(R.string.request_format_image)+currentMovieJSONFormat.getString("poster_path"),
-                    currentMovieJSONFormat.getDouble("vote_average"),
-                    currentMovieJSONFormat.getInt("id"),
-                    //get the genres array
-                    getGenresArray(currentMovieJSONFormat)
-            );
-            movies.add(currentMovie);
-
-        }
-       }catch(JSONException jsonE){
-         jsonE.printStackTrace();
-       }
-     return movies;
-    }
-
-    private int[] getGenresArray(JSONObject currentMovieJSONFormat) throws JSONException {
-        JSONArray genresArrayJson = currentMovieJSONFormat.getJSONArray("genre_ids");
-        int [] genres = new int[genresArrayJson.length()];
-        for(int i =0;i< genresArrayJson.length();i++)
-            genres[i]= genresArrayJson.getInt(i);
-        return genres;
-    }
-
     @Override
     public void onBackPressed() {
         finish();
@@ -276,19 +287,28 @@ public class MainActivity extends AppCompatActivity implements MainActivityAdapt
     @Override
     protected void onRestart() {
         super.onRestart();
+        //set the query to empty
         searchView.setQuery("",false);
+        //there may be a new movies added or removed from the database
+        //THIS IS NOT THE MOST EFFICIENT METHOD ...
+        getSavedMovies();
+
+
+
     }
 
-
     @Override
-    public void requestLoading(int currentSize,String fragmentName) {
+    public void requestLoading(String fragmentName) {
         switch (fragmentName){
             case Constraints.POPULAR_MOVIES_FRAGMENT:
-                viewPagerFragment.popularMoviesFragment.loadMoreMovies(currentSize);
+                viewPagerFragment.popularMoviesFragment.loadMoreMovies();
                 break;
             case  Constraints.UPCOMING_MOVIES_FRAGMENT:
-                viewPagerFragment.upcomingMoviesFragment.loadMoreMovies(currentSize);
+                viewPagerFragment.upcomingMoviesFragment.loadMoreMovies();
                 break;
+
+
         }
      }
+
 }

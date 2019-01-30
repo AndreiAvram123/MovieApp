@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,19 +22,29 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-public class MainActivityAdapter extends RecyclerView.Adapter {
+public class MainAdapter extends RecyclerView.Adapter {
+
     private ArrayList<Movie> movies = new ArrayList<>();
     private boolean isLoading = false;
-    private final int VIEW_TYPE_ITEM = 0;
-    private int VIEW_TYPE_LOADING = 1;
-    private MainActivityAdapterInterface mainActivityAdapterInterface;
+    private final int VIEW_TYPE_ITEM = 1;
+    private int VIEW_TYPE_LOADING = 0;
+    private MainAdapterInterface mainActivityAdapterInterface;
     private Context context;
     private String fragmentName;
+    private int numberOfItemsToLoad = 6;
 
-    public MainActivityAdapter( RecyclerView recyclerView, Activity activity,String fragmentName)
+
+    /**
+     * Use this constructor if you want the adapter to load more
+     * items
+     * @param recyclerView
+     * @param activity
+     * @param fragmentName
+     */
+    public MainAdapter(RecyclerView recyclerView, Activity activity, String fragmentName)
     {
         this.fragmentName = fragmentName;
-        mainActivityAdapterInterface = (MainActivityAdapterInterface) activity;
+        mainActivityAdapterInterface = (MainAdapterInterface) activity;
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
@@ -55,15 +64,54 @@ public class MainActivityAdapter extends RecyclerView.Adapter {
             }
         });
     }
-    public MainActivityAdapter(){
+
+    /**
+     * Use this constructor if you don't want the scroll more
+     * feature
+     */
+    public MainAdapter() {
 
     }
 
-    public void setLoading(boolean loading){
-        isLoading = loading;
+    /**
+     * Use this constructor if you want to add initial items in the
+     * adapter
+     */
+    public MainAdapter(ArrayList<Movie> movies )
+    {
+        this.movies.addAll(movies);
     }
+
+    /**
+     * Use this method to set a custom amount of items to load
+     * The default amount  is 6
+     */
+    public void setNumberOfItemsToLoad(int numberOfItemsToLoad){
+           this.numberOfItemsToLoad = numberOfItemsToLoad;
+    }
+
+    public int getNumberOfItemsToLoad(){
+        return  numberOfItemsToLoad;
+    }
+
+
     private void loadMore() {
-        mainActivityAdapterInterface.requestLoading(movies.size(),fragmentName);
+        mainActivityAdapterInterface.requestLoading(fragmentName);
+    }
+
+    /**
+     * Call this method when you have finished
+     * getting your new data
+     * @param newMovies
+     */
+    public  void finishLoading(ArrayList<Movie> newMovies){
+        addMovie(null);
+        Handler handler = new Handler();
+        handler.postDelayed(()->{
+            removeMovie(movies.size() -1);
+            addMovies(newMovies);
+            isLoading = false;
+        },2000);
     }
 
     public void addMovies(ArrayList<Movie> movies){
@@ -95,9 +143,17 @@ public class MainActivityAdapter extends RecyclerView.Adapter {
                 return new LoadingViewHolder(view);
             }
             }
-            return null;
+    return null;
     }
 
+    /**
+     * This method is called when the
+     * adapter decides on the type
+     * of ViewHolder to create
+     * @param position
+     * @return 1 for non null values
+     *         0 for null values
+     */
     @Override
     public int getItemViewType(int position) {
         if(movies.get(position)!= null)
@@ -106,12 +162,6 @@ public class MainActivityAdapter extends RecyclerView.Adapter {
             return VIEW_TYPE_LOADING;
     }
 
-
-    /**
-     * This is the method which returns the viewType
-     * @param viewHolder
-     * @param position
-     */
 
 
     @Override
@@ -124,14 +174,18 @@ public class MainActivityAdapter extends RecyclerView.Adapter {
               ItemViewHolder itemViewHolder = (ItemViewHolder) viewHolder;
               itemViewHolder.overview.setText(movies.get(position).getShortOverview());
               itemViewHolder.title.setText(movies.get(position).getTitle());
+
+              //Load the image using the Picasso library
               Picasso.get()
                       .load(movies.get(position).getPosterPath())
                       .placeholder(R.drawable.rsz_no_image)
                       .into(itemViewHolder.poster_image);
 
+               //expand the current selected movie
               itemViewHolder.layout.setOnClickListener(view -> startMovieExpandedActivity(position));
 
           }else {
+
               if(viewHolder instanceof LoadingViewHolder){
                   LoadingViewHolder loadingViewHolder = (LoadingViewHolder) viewHolder;
                   loadingViewHolder.progressBar.setVisibility(View.VISIBLE);
@@ -181,9 +235,9 @@ public class MainActivityAdapter extends RecyclerView.Adapter {
 
         }
     }
-    public interface MainActivityAdapterInterface {
 
-        void requestLoading(int currentSize,String fragmentName);
+    public interface MainAdapterInterface {
+        void requestLoading(String fragmentName);
     }
 
 }

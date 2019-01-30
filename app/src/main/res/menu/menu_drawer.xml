@@ -6,10 +6,10 @@
           android:id="@+id/home_item"
            android:icon = "@drawable/ic_home_black_24dp"/>
 
-    <item android:title="Favorite movies"
-          android:id="@+id/favorite_movies_item"
-         android:icon="@drawable/ic_favorite_black_24dp"
-        />
+    <item
+        android:id="@+id/saved_movies_item"
+        android:icon="@drawable/ic_favorite_black_24dp"
+        android:title="Saved movies" />
     <item android:title="Edit profile"
         android:id="@+id/edit_profile_item"
         android:icon="@drawable/ic_edit_black_24dp"

@@ -18,7 +18,7 @@
     <string name="no_password">PLEASE ENTER A PASSWORD</string>
     <string name="api_key">55398af9b60eda4997b848dd5ccf7d44</string>
     <string name="new_releases">NEW RELEASES</string>
-    <string name="request_format_image">https://image.tmdb.org/t/p/w300</string>
+
     <string name="search_hint">Search movies</string>
     <string name="error_no_result">NO RESULTS FOR YOUR SEARCH</string>
     <string name="change_email">CHANGE EMAIL</string>
@@ -40,4 +40,6 @@
     <string name="operation_unsuccessful">Something has gone wrong.We were unable to update your profile details</string>
     <string name="release_date">Release Date : </string>
     <string name="genre">Genre : </string>
+    <string name="saved_movies">Saved Movies</string>
+    <string name="no_movies_saved">THERE ARE NO SAVED MOVIES</string>
 </resources>
