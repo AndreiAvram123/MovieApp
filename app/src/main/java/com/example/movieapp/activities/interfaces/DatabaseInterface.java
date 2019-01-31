@@ -32,4 +32,7 @@ public interface DatabaseInterface {
 
  @Query("SELECT * FROM movies WHERE movieID = :movieId")
   Movie getMovie(int movieId);
+
+  @Query("SELECT COUNT(movieID) FROM movies")
+  int countMovies();
 }

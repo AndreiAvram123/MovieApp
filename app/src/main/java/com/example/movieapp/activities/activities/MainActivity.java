@@ -5,7 +5,6 @@ import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -28,7 +27,6 @@ import com.android.volley.toolbox.Volley;
 import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.AppDatabase;
 import com.example.movieapp.activities.Model.Constraints;
-import com.example.movieapp.activities.Model.CustomDialog;
 import com.example.movieapp.activities.Model.Movie;
 import com.example.movieapp.activities.Model.Useful;
 import com.example.movieapp.activities.adapters.MainAdapter;
@@ -55,6 +53,8 @@ public class MainActivity extends AppCompatActivity
     private FragmentManager fragmentManager;
     private SavedMoviesFragment savedMoviesFragment;
     private DatabaseInterface databaseInterface;
+    private int numberOfMoviesSaved;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity
 
         initializeUI();
         initializeDatabase();
-        getSavedMovies();
+        createSavedMoviesFragment();
         setUpToolbar();
 
         if(isNetworkAvailable())
@@ -84,10 +84,11 @@ public class MainActivity extends AppCompatActivity
      * OPERATIONS
      * @return
      */
-    private void getSavedMovies() {
+    private void createSavedMoviesFragment() {
        Thread backgroundThread = new Thread(
                () -> {
                   List<Movie> savedMovies = databaseInterface.selectAllMovies();
+                  numberOfMoviesSaved = savedMovies.size();
                   savedMoviesFragment = SavedMoviesFragment.newInstance(savedMovies);
                }
        );
@@ -95,6 +96,33 @@ public class MainActivity extends AppCompatActivity
        backgroundThread.start();
     }
 
+    /**
+     * This method checks if the user
+     * has removed or added a new movie to
+     * the saved ones, if so update the
+     * movies from the saved fragment
+     */
+    private void checkForSavedMovies(){
+        Thread backgroundThread = new Thread(
+                () -> {
+                    int numberOfMoviesInDatabase = databaseInterface.countMovies();
+                    if(numberOfMoviesInDatabase ==numberOfMoviesSaved-1
+                    || numberOfMoviesInDatabase == numberOfMoviesSaved +1)
+                        updateSavedMoviesFragment();
+
+                }
+        );
+        //always use start
+        backgroundThread.start();
+    }
+
+    private void updateSavedMoviesFragment() {
+          //we are still in the background thread
+        ArrayList<Movie> newSavedMovies = new ArrayList<>(
+                databaseInterface.selectAllMovies());
+        //switch to main thread
+          runOnUiThread(()-> savedMoviesFragment.setMovies(newSavedMovies));
+          }
 
     private void initializeDatabase() {
         //use getApplicationContext because data is related to the
@@ -213,17 +241,17 @@ public class MainActivity extends AppCompatActivity
 
 
     private void showViewPagerFragment() {
-        currentFragment = VIEW_PAGER_FRAGMENT;
+        currentFragment = Constraints.VIEW_PAGER_FRAGMENT;
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.frameLayout_placeholder,viewPagerFragment,VIEW_PAGER_FRAGMENT);
+        fragmentTransaction.replace(R.id.frameLayout_placeholder,viewPagerFragment,currentFragment);
         fragmentTransaction.commit();
     }
 
     private void updateUI() {
-        currentFragment = VIEW_PAGER_FRAGMENT;
+        currentFragment = Constraints.VIEW_PAGER_FRAGMENT;
         viewPagerFragment = ViewPagerFragment.newInstance(upcomingMovies,popularMovies);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.frameLayout_placeholder,viewPagerFragment,VIEW_PAGER_FRAGMENT);
+        fragmentTransaction.add(R.id.frameLayout_placeholder,viewPagerFragment,currentFragment);
         fragmentTransaction.commit();
     }
 
@@ -290,8 +318,7 @@ public class MainActivity extends AppCompatActivity
         //set the query to empty
         searchView.setQuery("",false);
         //there may be a new movies added or removed from the database
-        //THIS IS NOT THE MOST EFFICIENT METHOD ...
-        getSavedMovies();
+        checkForSavedMovies();
 
 
 
