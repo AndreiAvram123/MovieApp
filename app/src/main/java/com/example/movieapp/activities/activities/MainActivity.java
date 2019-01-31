@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -32,7 +33,6 @@ import com.example.movieapp.activities.Model.Constraints;
 import com.example.movieapp.activities.Model.CustomDialog;
 import com.example.movieapp.activities.Model.Movie;
 import com.example.movieapp.activities.Model.Useful;
-import com.example.movieapp.activities.adapters.MainAdapter;
 import com.example.movieapp.activities.fragments.SavedMoviesFragment;
 import com.example.movieapp.activities.fragments.ViewPagerFragment;
 import com.example.movieapp.activities.interfaces.DatabaseInterface;
@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         initializeDatabase();
         createSavedMoviesFragment();
         setUpToolbar();
+
 
         if(isNetworkAvailable())
         pushRequests();
@@ -227,11 +228,11 @@ public class MainActivity extends AppCompatActivity {
     private void setUpToolbar() {
         Toolbar toolbar = findViewById(R.id.main_activity_toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
         ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle("");
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
-
+        toolbar.setOnClickListener(view -> searchView.setIconified(false));
 
     }
 
@@ -242,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
         searchView = (SearchView) menu.findItem(R.id.search_bar).getActionView();
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setIconifiedByDefault(false);
+
         return true;
     }
 
@@ -312,7 +313,6 @@ public class MainActivity extends AppCompatActivity {
 
         StringRequest popularMoviesRequest = new StringRequest(Request.Method.GET,popularMoviesUri,
                 response -> runOnUiThread(()-> {
-
                    popularMovies= Useful.getMovies(response);
                     //the call is made in the background, the second requests
                     //may not wait for the first one to finish
@@ -343,7 +343,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
 
 
 }

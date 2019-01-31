@@ -66,8 +66,8 @@ public class Movie implements Parcelable {
         return overview;
     }
     public String getShortOverview(){
-        if(overview.length()>125){
-            return overview.substring(0,125);
+        if(overview.length()>100){
+            return overview.substring(0,100);
         }else {
             return overview;
         }

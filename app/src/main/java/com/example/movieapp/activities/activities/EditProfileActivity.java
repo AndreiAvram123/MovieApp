@@ -11,6 +11,7 @@ import android.widget.ProgressBar;
 import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.Constraints;
 import com.example.movieapp.activities.Model.CustomDialog;
+import com.example.movieapp.activities.Model.Useful;
 import com.example.movieapp.activities.fragments.EditProfileFragment;
 import com.example.movieapp.activities.fragments.UpdateCredentialFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -36,18 +37,13 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
 
          firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        makeActivityFullscreen();
+         Useful.makeActivityFullscreen(getWindow());
 
-        initializeUI();
+         initializeUI();
 
-
-    }
-
-    private void makeActivityFullscreen() {
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
     }
+
 
 
 
@@ -57,60 +53,8 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
         errorDialog.show();
     }
 
-    /**
-     * This method is used in order to change the nickname
-     * of the current user in the Firebase database
-     * We need to use a UserProfileChangeRequest object in
-     * order to use the update .The object is created
-     * using an inner class named Builder
-     *
-     * IF THE TASK IS successful display a message to the
-     *      * user informing him that everything has gone well
-     *      * OTHERWISE display and error dialog
-     * @param newNickname
-     */
-    private void changeNicknameInDatabase(String newNickname) {
-        firebaseUser.updateProfile(new UserProfileChangeRequest.Builder()
-                .setDisplayName(newNickname)
-                .build()).addOnCompleteListener(task -> {
-            if(task.isSuccessful()){
-                showMessageDialog();
-                goBackToViewPagerFragment();
-            }else {
-                showErrorDialog();
-            }
-        });
 
-    }
 
-    /**
-     * Update the password in the Firebase database
-     * IF THE TASK IS successful display a message to the
-     * user informing him that everything has gone well
-     * OTHERWISE display and error dialog
-     * @param newPassword
-     */
-    private void changePasswordInDatabase(String newPassword) {
-        firebaseUser.updatePassword(newPassword).addOnCompleteListener(task->{
-             if(task.isSuccessful()){
-                 showMessageDialog();
-                 goBackToViewPagerFragment();
-             }else {
-                 showErrorDialog();
-             }
-        });
-    }
-
-    private void changeEmailInDatabase(String newEmail){
-        firebaseUser.updateEmail(newEmail).addOnCompleteListener(task ->{
-            if(task.isSuccessful()){
-                showMessageDialog();
-                goBackToViewPagerFragment();
-            }else {
-                showErrorDialog();
-            }
-        });
-    }
 
     public void initializeUI(){
         fragmentManager = getSupportFragmentManager();
@@ -124,6 +68,7 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
          fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frameLayout_edit_profile,UpdateCredentialFragment.newInstance(credential),
                 KEY_UPDATE_CREDENTIAL_FRAGMENT);
+        fragmentTransaction.addToBackStack(null);
          fragmentTransaction.commit();
     }
 
@@ -164,6 +109,7 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
         showUpdateCredentialFragment(Constraints.KEY_PASSWORD_CREDENTIAL);
     }
 
+
     @Override
     public void changeNickname() {
        showUpdateCredentialFragment(Constraints.KEY_NICKNAME_CREDENTIAL);
@@ -175,21 +121,78 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
 
     }
 
+    /**
+     * THE INTERFACE METHOD IS CALLED FROM THE
+     * UpdateCredentialsFragment
+     *
+     * Update the email in the Firebase database
+     * IF THE TASK IS successful display a message to the
+     * user informing him that everything has gone well
+     * OTHERWISE display and error dialog
+     * @param newEmail
+     */
     @Override
     public void updateEmail(String newEmail) {
-            changeEmailInDatabase(newEmail);
+        firebaseUser.updateEmail(newEmail).addOnCompleteListener(task ->{
+            if(task.isSuccessful()){
+                showMessageDialog();
+                goBackToViewPagerFragment();
+            }else {
+                showErrorDialog();
+            }
+        });
     }
 
+    /**
+     * THE INTERFACE METHOD IS CALLED FROM THE
+     * UpdateCredentialsFragment
+     *
+     * Update the password in the Firebase database
+     * IF THE TASK IS successful display a message to the
+     * user informing him that everything has gone well
+     * OTHERWISE display and error dialog
+     * @param newPassword
+     */
     @Override
     public void updatePassword(String newPassword) {
-             changePasswordInDatabase(newPassword);
+        firebaseUser.updatePassword(newPassword).addOnCompleteListener(task->{
+            if(task.isSuccessful()){
+                showMessageDialog();
+                goBackToViewPagerFragment();
+            }else {
+                showErrorDialog();
+            }
+        });
     }
 
 
-
+    /**
+     * THE INTERFACE METHOD IS CALLED FROM THE
+     * UpdateCredentialsFragment
+     *
+     * This method is used in order to change the nickname
+     * of the current user in the Firebase database
+     * We need to use a UserProfileChangeRequest object in
+     * order to use the update .The object is created
+     * using an inner class named Builder
+     *
+     * IF THE TASK IS successful display a message to the
+     *      * user informing him that everything has gone well
+     *      * OTHERWISE display and error dialog
+     * @param newNickname
+     */
     @Override
     public void updateNickname(String newNickname) {
-        changeNicknameInDatabase(newNickname);
+        firebaseUser.updateProfile(new UserProfileChangeRequest.Builder()
+                .setDisplayName(newNickname)
+                .build()).addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                showMessageDialog();
+                goBackToViewPagerFragment();
+            }else {
+                showErrorDialog();
+            }
+        });
 
     }
 
