@@ -9,6 +9,7 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseExpandableListAdapter;
 
 import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.Constraints;
@@ -19,8 +20,8 @@ import java.util.ArrayList;
 public class ViewPagerFragment extends Fragment {
 
     private ViewPager viewPager;
-    public PopularMoviesFragment popularMoviesFragment;
-    public UpcomingMoviesFragment upcomingMoviesFragment;
+    public BaseFragment popularMoviesFragment;
+    public  BaseFragment upcomingMoviesFragment;
 
     /**
      *  YOU NEED TO PUT THE ARRAYS INTO A BUNDLE
@@ -48,8 +49,8 @@ public class ViewPagerFragment extends Fragment {
         viewPager = view.findViewById(R.id.viewPager);
         ArrayList<Movie> upcomingMovies = getArguments().getParcelableArrayList(Constraints.KEY_UPCOMING_MOVIES_ARRAY);
         ArrayList<Movie> popularMovies = getArguments().getParcelableArrayList(Constraints.KEY_POPULAR_MOVIES_ARRAY);
-        popularMoviesFragment = PopularMoviesFragment.newInstance(popularMovies);
-        upcomingMoviesFragment = UpcomingMoviesFragment.newInstance(upcomingMovies);
+        popularMoviesFragment = BaseFragment.newInstance(popularMovies);
+        upcomingMoviesFragment = BaseFragment.newInstance(upcomingMovies);
         viewPager.setAdapter(new FragmentPagerAdapter(getChildFragmentManager()) {
 
             @Override

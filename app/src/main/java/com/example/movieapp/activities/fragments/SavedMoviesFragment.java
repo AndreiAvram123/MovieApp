@@ -24,6 +24,8 @@ public class SavedMoviesFragment  extends Fragment{
 
     private  TextView noMoviesMessage;
     private  GridAdapter gridAdapter;
+    private  ArrayList<Movie> movies;
+
     public static SavedMoviesFragment newInstance(List<Movie> savedMovies){
         SavedMoviesFragment savedMoviesFragment = new SavedMoviesFragment();
         Bundle bundle = new Bundle();
@@ -38,7 +40,7 @@ public class SavedMoviesFragment  extends Fragment{
         View view = inflater.inflate(R.layout.layout_saved_movies_fragment,container,
                 false);
 
-       ArrayList<Movie> movies  = getArguments().getParcelableArrayList(Constraints.KEY_SAVED_MOVIES);
+        movies  = getArguments().getParcelableArrayList(Constraints.KEY_SAVED_MOVIES);
 
         noMoviesMessage= view.findViewById(R.id.no_movies_saved_fragment);
         GridView gridView = view.findViewById(R.id.gridview);
@@ -66,14 +68,5 @@ public class SavedMoviesFragment  extends Fragment{
         super.onStart();
 
     }
-    public void setMovies(ArrayList<Movie> newMovies){
-        gridAdapter.setSavedMovies(newMovies);
-        gridAdapter.notifyDataSetChanged();
 
-
-        if(newMovies.isEmpty()){
-            noMoviesMessage.setVisibility(View.VISIBLE);
-        }
-
-    }
 }

@@ -22,7 +22,7 @@ import com.example.movieapp.activities.adapters.MainAdapter;
 
 import java.util.ArrayList;
 
-public class SearchableActivity extends AppCompatActivity {
+public class SearchableActivity extends AppCompatActivity{
     private static final String TAG = SearchableActivity.class.getSimpleName();
     private RecyclerView recyclerView;
     private TextView no_results_error;
@@ -50,11 +50,6 @@ public class SearchableActivity extends AppCompatActivity {
         }
 
     }
-    private void makeAppFullscreen() {
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-    }
-
 
     private void pushRequest(String uri) {
 
@@ -69,12 +64,11 @@ public class SearchableActivity extends AppCompatActivity {
     }
 
     private void updateUI(String responseData) {
-        MainAdapter mainAdapter = new MainAdapter();
         ArrayList<Movie> searchedMovies = Useful.getMovies(responseData);
         if(searchedMovies.isEmpty()){
             no_results_error.setVisibility(View.VISIBLE);
         }else {
-            mainAdapter.addMovies(searchedMovies);
+            MainAdapter mainAdapter = new MainAdapter(recyclerView,searchedMovies);
             recyclerView.setAdapter(mainAdapter);
             recyclerView.setHasFixedSize(true);
             recyclerView.addItemDecoration(new CustomDivider(20));

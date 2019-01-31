@@ -42,4 +42,6 @@
     <string name="genre">Genre : </string>
     <string name="saved_movies">Saved Movies</string>
     <string name="no_movies_saved">THERE ARE NO SAVED MOVIES</string>
+    <string name="no_internet_connection">No internet connection ...</string>
+    <string name="please_connect">There is no internet connection.Connect in order to use all the features.</string> <string/>
 </resources>

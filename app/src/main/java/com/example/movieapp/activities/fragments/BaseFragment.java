@@ -26,8 +26,14 @@ public class BaseFragment extends Fragment {
      public RecyclerView recyclerView;
      public MainAdapter mainAdapter;
      public ArrayList<Movie> movies;
-     private String fragmentName;
 
+     public static BaseFragment newInstance(ArrayList<Movie> movies){
+         BaseFragment baseFragment = new BaseFragment();
+         Bundle bundle = new Bundle();
+         bundle.putParcelableArrayList(KEY_MOVIES_ARRAY,movies);
+        baseFragment.setArguments(bundle);
+        return baseFragment;
+     }
 
     @Nullable
     @Override
@@ -35,35 +41,15 @@ public class BaseFragment extends Fragment {
         View view = inflater.inflate(R.layout.layout_base_fragment,container,false);
         movies = getArguments().getParcelableArrayList(KEY_MOVIES_ARRAY);
         recyclerView = view.findViewById(R.id.recycler_view_base_fragment);
-        mainAdapter = new MainAdapter(recyclerView,getActivity(),fragmentName);
+        mainAdapter = new MainAdapter(recyclerView,movies);
 
         initializeRecyclerView(container.getContext());
         return view;
     }
 
-    public void loadMoreMovies(){
-          ArrayList<Movie> moviesToAdd = new ArrayList<>();
-          //initialize the index with the number of items
-          // in the adapter minus 2 because we are
-         //gonna get rid of the null value
-          int index = mainAdapter.getItemCount() -2;
-          int numberOfItemsToLoad = mainAdapter.getNumberOfItemsToLoad();
-          while(index < index + numberOfItemsToLoad && index < movies.size())
-          {
-              moviesToAdd.add(movies.get(index));
-              index ++;
-          }
-          mainAdapter.finishLoading(moviesToAdd);
 
-    }
-    public void setFragmentName(String fragmentName){
-        this.fragmentName = fragmentName;
-    }
 
     public void initializeRecyclerView(Context context){
-        //add the first 6 movies
-        for(int i =0;i< 6;i++)
-            mainAdapter.addMovie(movies.get(i));
         recyclerView.setAdapter(mainAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.addItemDecoration( new CustomDivider(20));

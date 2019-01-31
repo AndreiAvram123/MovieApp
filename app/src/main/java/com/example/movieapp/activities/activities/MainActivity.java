@@ -4,6 +4,8 @@ import android.app.SearchManager;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
@@ -27,6 +29,7 @@ import com.android.volley.toolbox.Volley;
 import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.AppDatabase;
 import com.example.movieapp.activities.Model.Constraints;
+import com.example.movieapp.activities.Model.CustomDialog;
 import com.example.movieapp.activities.Model.Movie;
 import com.example.movieapp.activities.Model.Useful;
 import com.example.movieapp.activities.adapters.MainAdapter;
@@ -38,12 +41,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity
-        implements MainAdapter.MainAdapterInterface{
+public class MainActivity extends AppCompatActivity {
 
     private String currentFragment;
     private  ArrayList<Movie> popularMovies;
     private  ArrayList<Movie> upcomingMovies;
+    private List<Movie> savedMovies;
     private static final String popularMoviesUri = "https://api.themoviedb.org/3/movie/popular?api_key=55398af9b60eda4997b848dd5ccf7d44&language=en-US&page=1";
     private static final  String upcomingMoviesUri = "https://api.themoviedb.org/3/movie/upcoming?api_key=55398af9b60eda4997b848dd5ccf7d44&language=en-US&page=1&region=GB";
     private DrawerLayout drawerLayout;
@@ -54,6 +57,7 @@ public class MainActivity extends AppCompatActivity
     private SavedMoviesFragment savedMoviesFragment;
     private DatabaseInterface databaseInterface;
     private int numberOfMoviesSaved;
+    private TextView errorMessage;
 
 
     @Override
@@ -68,12 +72,26 @@ public class MainActivity extends AppCompatActivity
 
         if(isNetworkAvailable())
         pushRequests();
+        else {
+            showNetworkUnavailableError();
+        }
 
+    }
+
+    private void showNetworkUnavailableError() {
+        errorMessage.setVisibility(View.VISIBLE);
+        new CustomDialog(this,getString(R.string.please_connect))
+        .show();
     }
 
 
     private boolean isNetworkAvailable() {
-        return true;
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if(networkInfo != null && networkInfo.isConnected())
+            return true;
+        else
+            return false;
     }
 
     /**
@@ -87,7 +105,7 @@ public class MainActivity extends AppCompatActivity
     private void createSavedMoviesFragment() {
        Thread backgroundThread = new Thread(
                () -> {
-                  List<Movie> savedMovies = databaseInterface.selectAllMovies();
+                  savedMovies = databaseInterface.selectAllMovies();
                   numberOfMoviesSaved = savedMovies.size();
                   savedMoviesFragment = SavedMoviesFragment.newInstance(savedMovies);
                }
@@ -117,12 +135,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void updateSavedMoviesFragment() {
-          //we are still in the background thread
-        ArrayList<Movie> newSavedMovies = new ArrayList<>(
-                databaseInterface.selectAllMovies());
-        //switch to main thread
-          runOnUiThread(()-> savedMoviesFragment.setMovies(newSavedMovies));
-          }
+        //we are still in the background thread
+        savedMovies = databaseInterface.selectAllMovies();
+        savedMoviesFragment = SavedMoviesFragment.newInstance(
+                savedMovies);
+        numberOfMoviesSaved = savedMovies.size();
+
+    }
 
     private void initializeDatabase() {
         //use getApplicationContext because data is related to the
@@ -133,6 +152,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initializeUI() {
+        errorMessage = findViewById(R.id.error_message_main);
         Useful.makeActivityFullscreen(getWindow());
         fragmentManager = getSupportFragmentManager();
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -324,18 +344,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    @Override
-    public void requestLoading(String fragmentName) {
-        switch (fragmentName){
-            case Constraints.POPULAR_MOVIES_FRAGMENT:
-                viewPagerFragment.popularMoviesFragment.loadMoreMovies();
-                break;
-            case  Constraints.UPCOMING_MOVIES_FRAGMENT:
-                viewPagerFragment.upcomingMoviesFragment.loadMoreMovies();
-                break;
 
-
-        }
-     }
 
 }
