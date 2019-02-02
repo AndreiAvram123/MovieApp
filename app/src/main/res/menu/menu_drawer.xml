@@ -1,22 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="Home"
-          android:id="@+id/home_item"
-           android:icon = "@drawable/ic_home_black_24dp"/>
+    <item
+        android:id="@+id/home_item"
+        android:icon="@drawable/ic_home_white_24dp"
+        android:title="Home" />
 
     <item
         android:id="@+id/saved_movies_item"
-        android:icon="@drawable/ic_favorite_black_24dp"
-        android:title="Saved movies" />
-    <item android:title="Edit profile"
+        android:icon="@drawable/ic_favorite_white_24dp"
+        android:title="@string/saved_movies" />
+
+
+    <item android:title="@string/edit_profile"
         android:id="@+id/edit_profile_item"
-        android:icon="@drawable/ic_edit_black_24dp"
+        android:icon="@drawable/ic_edit_white_24dp"
         />
-    <item android:title = "Settings"
-        android:id = "@+id/settings_item"
-        android:icon = "@drawable/ic_settings_black_24dp"
-        />
+
+    <item
+    android:id="@+id/settings_item"
+    android:icon="@drawable/ic_settings_white_24dp"
+    android:title="@string/settings" />
 
 </menu>

@@ -5,32 +5,45 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#141D27"
-    android:paddingBottom="10dp"
-    >
+    android:paddingBottom="10dp">
+
+    <Button
+        android:id="@+id/negative_button_custom_dialog"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/ripple"
+        android:text="@string/cancel"
+        android:textColor="#ffffff"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/positive_button_custom_dialog" />
 
     <TextView
         android:id="@+id/message_custom_dialog"
         style="@style/default_style_textView"
-        android:layout_width="0dp"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:gravity="center"
-        app:layout_constraintBottom_toTopOf="@+id/ok_button_custom_dialog"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="message" />
 
     <Button
-        android:id="@+id/ok_button_custom_dialog"
-        android:layout_width="200dp"
+        android:id="@+id/positive_button_custom_dialog"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="4dp"
         android:background="@drawable/ripple"
         android:text="@string/ok"
         android:textColor="#ffffff"

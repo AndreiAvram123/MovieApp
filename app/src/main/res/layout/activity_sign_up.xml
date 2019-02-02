@@ -5,8 +5,46 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.activities.SignUpActivity"
-    android:background="@drawable/background_gradient"
+    android:background="#252525"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     >
+
+    <EditText
+        android:id="@+id/nickname_field"
+        android:layout_width="0dp"
+
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:backgroundTint="#ffffff"
+        android:ems="10"
+        android:imeOptions="actionDone"
+        android:inputType="textPassword"
+        android:nextFocusLeft="@id/reentered_password_field"
+        android:nextFocusUp="@id/reentered_password_field"
+        android:selectAllOnFocus="false"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/hint_enter_nickname" />
+
+    <TextView
+        android:id="@+id/hint_enter_nickname"
+        style="@style/default_style_textView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/enter_nickname"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/reentered_password_field" />
 
     <TextView
         android:id="@+id/error_message_sign_up"
@@ -19,49 +57,54 @@
         android:textSize="17sp"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/reenter_password_field_sign_up"
+        app:layout_constraintTop_toBottomOf="@+id/nickname_field"
         tools:text="Invalid Email" />
 
     <Button
+
         android:id="@+id/next_button_sign_up"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:background="@drawable/round_shape"
-        android:backgroundTint="#89B6E8"
+        android:background="@drawable/ripple"
         android:text="@string/next_button"
-        android:textColor="#000000"
+        android:textColor="#ffffff"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/error_message_sign_up"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.19" />
 
     <EditText
-        android:id="@+id/reenter_password_field_sign_up"
+        android:id="@+id/reentered_password_field"
         android:layout_width="0dp"
+
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:backgroundTint="#0063E0"
+        android:backgroundTint="#ffffff"
         android:ems="10"
+        android:imeOptions="actionDone"
         android:inputType="textPassword"
+        android:nextFocusLeft="@id/reentered_password_field"
+        android:nextFocusUp="@id/reentered_password_field"
+        android:selectAllOnFocus="false"
         android:textColor="#ffffff"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/enter_password_hint2" />
+        app:layout_constraintTop_toBottomOf="@+id/hint_reenter_password" />
 
     <TextView
-        android:id="@+id/enter_password_hint2"
+        android:id="@+id/hint_reenter_password"
         style="@style/default_style_textView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -79,20 +122,24 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:backgroundTint="#0063E0"
+        android:backgroundTint="#ffffff"
         android:ems="10"
+        android:imeOptions="actionDone"
         android:inputType="textPassword"
+        android:nextFocusLeft="@id/password_field_sign_up"
+        android:nextFocusUp="@id/password_field_sign_up"
+        android:selectAllOnFocus="false"
         android:textColor="#ffffff"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/enter_password_hint" />
+        app:layout_constraintTop_toBottomOf="@+id/hint_enter_password" />
 
     <TextView
-        android:id="@+id/enter_password_hint"
+        android:id="@+id/hint_enter_password"
         style="@style/default_style_textView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -106,12 +153,12 @@
         app:layout_constraintTop_toBottomOf="@+id/email_field_sign_up" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/hint_enter_email"
         style="@style/default_style_textView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="92dp"
+        android:layout_marginTop="70dp"
         android:layout_marginEnd="16dp"
         android:text="@string/enter_email"
         app:layout_constraintEnd_toEndOf="parent"
@@ -120,33 +167,39 @@
         app:layout_constraintTop_toBottomOf="@+id/create_account_hint" />
 
     <TextView
-        style="@style/default_style_textView"
+        android:textColor="#89B6E8"
         android:id="@+id/create_account_hint"
+        style="@style/default_style_textView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="23dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:text="@string/create_account_hint"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/back_button_sign_up" />
 
     <EditText
-        android:textSize="20sp"
         android:id="@+id/email_field_sign_up"
-        android:textColor="#ffffff"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:backgroundTint="#0063E0"
+        android:backgroundTint="#ffffff"
         android:ems="10"
+        android:imeOptions="actionDone"
         android:inputType="textEmailAddress"
+        android:nextFocusLeft="@id/email_field_sign_up"
+        android:nextFocusUp="@id/email_field_sign_up"
+        android:selectAllOnFocus="false"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+        app:layout_constraintTop_toBottomOf="@+id/hint_enter_email" />
 
     <ProgressBar
         android:id="@+id/loading_progress_bar_sign_up"
@@ -157,5 +210,18 @@
         app:layout_constraintEnd_toEndOf="@+id/next_button_sign_up"
         app:layout_constraintStart_toStartOf="@+id/next_button_sign_up"
         app:layout_constraintTop_toTopOf="@+id/next_button_sign_up" />
+
+    <ImageView
+        android:id="@+id/back_button_sign_up"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_arrow_back_white_24dp" />
 
 </android.support.constraint.ConstraintLayout>

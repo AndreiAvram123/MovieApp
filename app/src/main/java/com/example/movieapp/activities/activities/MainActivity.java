@@ -41,7 +41,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements CustomDialog.CustomDialogInterface {
 
     private String currentFragment;
     private  ArrayList<Movie> popularMovies;
@@ -58,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseInterface databaseInterface;
     private int numberOfMoviesSaved;
     private TextView errorMessage;
+    private CustomDialog customDialog;
+    private String nickname;
 
 
     @Override
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         setUpToolbar();
 
 
-        if(isNetworkAvailable())
+        if(Useful.isNetworkAvailable(this))
         pushRequests();
         else {
             showNetworkUnavailableError();
@@ -81,19 +83,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void showNetworkUnavailableError() {
         errorMessage.setVisibility(View.VISIBLE);
-        new CustomDialog(this,getString(R.string.please_connect))
-        .show();
+         customDialog = new CustomDialog(this,getString(R.string.please_connect),this,false);
+         customDialog.show();
     }
 
 
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        if(networkInfo != null && networkInfo.isConnected())
-            return true;
-        else
-            return false;
-    }
+
 
     /**
      * Create a Thread object in order to
@@ -187,7 +182,12 @@ public class MainActivity extends AppCompatActivity {
                      currentFragment = Constraints.SAVED_MOVIES_FRAGMENT;
                      return true;
 
-
+                case R.id.settings_item :
+                    drawerLayout.closeDrawers();
+                    menuItem.setChecked(true);
+                    uncheckItems(menuItem.getItemId(),navigationView.getMenu());
+                    startSettingsActivity();
+                    return true;
 
             }
             return false;
@@ -196,8 +196,15 @@ public class MainActivity extends AppCompatActivity {
  * The standard way of updating the header layout
  */
         View header_layout = navigationView.getHeaderView(0);
-        TextView email = header_layout.findViewById(R.id.email_address_drawer);
-        email.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        TextView nicknameTextView = header_layout.findViewById(R.id.nickname_drawer);
+        nickname = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+        nicknameTextView.setText(nickname);
+    }
+
+    private void startSettingsActivity() {
+        Intent intent = new Intent(this,SettingsActivity.class);
+        intent.putExtra(Constraints.KEY_NICKNAME_SETTINGS,nickname);
+        startActivity(intent);
     }
 
     private void showSavedMoviesFragment() {
@@ -334,15 +341,30 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onRestart() {
-        super.onRestart();
-        //set the query to empty
-        searchView.setQuery("",false);
-        //there may be a new movies added or removed from the database
-        checkForSavedMovies();
+        //the user has pressed back in the login activity after
+        //he has signed out
+        if(FirebaseAuth.getInstance().getCurrentUser() == null){
+            finish();
+        }else {
+            super.onRestart();
+            //set the query to empty
+            searchView.setQuery("", false);
+            //there may be a new movies added or removed from the database
+            checkForSavedMovies();
 
 
+        }
 
     }
 
 
+    @Override
+    public void positiveButtonPressed() {
+        customDialog.hide();
+    }
+
+    @Override
+    public void negativeButtonPressed() {
+
+    }
 }

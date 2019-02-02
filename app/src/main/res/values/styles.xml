@@ -26,7 +26,11 @@
         <item name="android:gravity">center</item>
     </style>
 
-
+    <style name="PreferencesTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:background">#252525</item>
+        <item name ="android:textColor">#ffffff</item>
+         <item name="android:textColorSecondary">#ffffff</item>
+    </style>
 
 
 </resources>

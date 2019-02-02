@@ -57,6 +57,7 @@ public class UpdateCredentialFragment extends Fragment {
         TextView title = view.findViewById(R.id.new_credential_title);
          hint1 = view.findViewById(R.id.new_credential_hint1);
          hint2 = view.findViewById(R.id.new_credential_hint2);
+
         field1 = view.findViewById(R.id.new_credential_field1);
         field2 = view.findViewById(R.id.new_credential_field2);
         error_message = view.findViewById(R.id.error_message_update_credentials);

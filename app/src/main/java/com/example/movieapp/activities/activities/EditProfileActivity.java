@@ -1,12 +1,9 @@
 package com.example.movieapp.activities.activities;
 
-import android.support.annotation.NonNull;
+import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.view.WindowManager;
-import android.widget.ProgressBar;
 
 import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.Constraints;
@@ -14,21 +11,19 @@ import com.example.movieapp.activities.Model.CustomDialog;
 import com.example.movieapp.activities.Model.Useful;
 import com.example.movieapp.activities.fragments.EditProfileFragment;
 import com.example.movieapp.activities.fragments.UpdateCredentialFragment;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class EditProfileActivity extends AppCompatActivity implements EditProfileFragment.EditProfileFragmentInterface,
-        UpdateCredentialFragment.UpdateCredentialFragmentInterface {
+        UpdateCredentialFragment.UpdateCredentialFragmentInterface , CustomDialog.CustomDialogInterface {
 
     private static final String KEY_UPDATE_CREDENTIAL_FRAGMENT = "KEY_UPDATE_CREDENTIAL_FRAGMENT";
     private EditProfileFragment editProfileFragment;
     private FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;
     private FirebaseUser firebaseUser;
+    private  CustomDialog customDialog;
     public static final String KEY_EDIT_PROFILE_FRAGMENT ="EDIT_PROFILE_FRAGMENT";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +43,10 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
 
 
     private void showErrorDialog() {
-        CustomDialog errorDialog = new CustomDialog(this,
-                        getString(R.string.operation_unsuccessful));
-        errorDialog.show();
+         customDialog = new CustomDialog(this,
+                        getString(R.string.operation_unsuccessful),this,false);
+         customDialog.setCanceledOnTouchOutside(false);
+         customDialog.show();
     }
 
 
@@ -84,8 +80,9 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
      * has been successful
      */
     private void showMessageDialog() {
-        CustomDialog customDialog = new CustomDialog(this,
-                getString(R.string.operation_successful));
+        customDialog = new CustomDialog(this,
+                getString(R.string.operation_successful),this,false);
+        customDialog.setCanceledOnTouchOutside(false);
         customDialog.show();
     }
     /**
@@ -197,6 +194,13 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
     }
 
 
+    @Override
+    public void positiveButtonPressed() {
+        customDialog.hide();
+    }
 
+    @Override
+    public void negativeButtonPressed() {
 
+    }
 }

@@ -95,7 +95,7 @@ public class MainAdapter extends RecyclerView.Adapter {
             }
             isLoading = false;
             notifyDataSetChanged();
-        },3000);
+        },2000);
 
     }
 

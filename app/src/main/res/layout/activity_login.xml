@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.activities.LoginActivity"
-    android:background="@drawable/background_gradient"
+    android:background="#252525"
+    android:focusableInTouchMode="true"
+
     >
 
     <TextView
@@ -32,6 +34,7 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="8dp"
         android:text="SIGN IN"
+        android:textColor="#89B6E8"
         android:textSize="25sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -53,34 +56,40 @@
         app:layout_constraintTop_toBottomOf="@+id/login_label" />
 
     <EditText
-        android:textColor="#ffffff"
-        android:textSize="20sp"
-        android:backgroundTint="#ffffff"
+        android:nextFocusUp="@id/email_edit_text_main"
+        android:nextFocusLeft="@id/email_edit_text_main"
         android:id="@+id/email_edit_text_main"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
+        android:backgroundTint="#ffffff"
         android:ems="10"
+        android:imeOptions="actionDone"
         android:inputType="textEmailAddress"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/email_hint_login" />
 
     <EditText
-        android:textSize="20sp"
-        android:textColor="#ffffff"
-        android:backgroundTint="#ffffff"
+        android:nextFocusUp="@id/password_edit_text_main"
+        android:nextFocusLeft="@id/password_edit_text_main"
         android:id="@+id/password_edit_text_main"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
+        android:backgroundTint="#ffffff"
         android:ems="10"
+        android:imeOptions="normal|actionDone"
         android:inputType="textPassword"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/password_hint_login" />
@@ -92,8 +101,8 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="60dp"
         android:layout_marginEnd="8dp"
-        android:text="@string/log_in_button_hint"
         android:background="@drawable/ripple"
+        android:text="@string/log_in_button_hint"
         android:textColor="#ffffff"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"

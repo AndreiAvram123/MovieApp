@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.CustomDialog;
@@ -18,7 +19,7 @@ import com.google.android.gms.common.SignInButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements CustomDialog.CustomDialogInterface {
     private EditText emailEditText;
     private EditText passwordEditText;
     private FirebaseAuth firebaseAuth;
@@ -28,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button signUpButton;
     private TextView emailHint;
     private TextView passwordHint;
+    private CustomDialog customDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +37,16 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         initializeView();
+        if(!Useful.isNetworkAvailable(this)){
+            displayInternetUnavailableDialog();
+        }
 
+    }
+
+    private void displayInternetUnavailableDialog() {
+        customDialog = new CustomDialog(this,getString(R.string.no_internet_connection),this,false);
+        customDialog.setCanceledOnTouchOutside(false);
+        customDialog.show();
     }
 
 
@@ -47,30 +58,9 @@ public class LoginActivity extends AppCompatActivity {
         errorMessage = findViewById(R.id.error_message_text_view);
         loggingProgressBar = findViewById(R.id.logging_progress_bar);
 
-        emailEditText.setOnFocusChangeListener((v, hasFocus) -> {
-           if(hasFocus){
-               emailEditText.getBackground()
-                       .mutate().setColorFilter(Color.parseColor("#76B900"), PorterDuff.Mode.SRC_ATOP);
-               emailHint.setTextColor(Color.parseColor("#A5B253"));
+        customiseEditText(emailEditText,emailHint);
+        customiseEditText(passwordEditText,passwordHint);
 
-           }else {
-               emailEditText.getBackground()
-                       .mutate().setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_ATOP);
-               emailHint.setTextColor(Color.parseColor("#ffffff"));
-           }
-        });
-
-        passwordEditText.setOnFocusChangeListener((v, hasFocus) -> {
-            if(hasFocus){
-                passwordEditText.getBackground()
-                        .mutate().setColorFilter(Color.parseColor("#76B900"), PorterDuff.Mode.SRC_ATOP);
-                passwordHint.setTextColor(Color.parseColor("#A5B253"));
-            }else {
-                passwordEditText.getBackground()
-                        .mutate().setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_ATOP);
-                passwordHint.setTextColor(Color.parseColor("#ffffff"));
-            }
-        });
 
         signInButton  = findViewById(R.id.sign_in_button);
         signInButton.setOnClickListener(view -> signInUser());
@@ -80,35 +70,56 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    private void signUpUser() {
-          startActivity(new Intent(this,SignUpActivity.class));
+    private void customiseEditText(EditText editText ,TextView hint) {
+        editText.setOnFocusChangeListener((v, hasFocus) -> {
+            if(hasFocus){
+                editText.getBackground()
+                        .mutate().setColorFilter(Color.parseColor("#76B900"), PorterDuff.Mode.SRC_ATOP);
+                hint.setTextColor(Color.parseColor("#A5B253"));
+            }else {
+                editText.getBackground()
+                        .mutate().setColorFilter(Color.parseColor("#ffffff"),PorterDuff.Mode.SRC_ATOP);
+                hint.setTextColor(Color.parseColor("#ffffff"));
+            }
+        });
     }
 
-    private void signInUser() {
-        String email = emailEditText.getText().toString().trim();
-        String password = passwordEditText.getText().toString().trim();
+    private void signUpUser() {
+        if(!Useful.isNetworkAvailable(this)){
+            displayInternetUnavailableDialog();
+        }else {
+            startActivity(new Intent(this, SignUpActivity.class));
+        }
+        }
 
-        if(Useful.isEmailValid(email)){
-            if(!password.isEmpty()) {
-                updateViews();
-                firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this,task -> {
+    private void signInUser() {
+        if (!Useful.isNetworkAvailable(this)) {
+            displayInternetUnavailableDialog();
+        } else {
+            String email = emailEditText.getText().toString().trim();
+            String password = passwordEditText.getText().toString().trim();
+
+            if (Useful.isEmailValid(email)) {
+                if (!password.isEmpty()) {
                     updateViews();
-                     if(task.isSuccessful()) {
-                         if (!firebaseAuth.getCurrentUser().isEmailVerified()) {
-                             alertUserAboutVerificationEmail();
-                             firebaseAuth.signOut();
-                         } else {
-                              startMainActivity();
-                         }
-                     }else {
-                         displayErrorMessage(getString(R.string.error_invalid_credentials));
-                     }
-                });
-            }else {
-                displayErrorMessage(getString(R.string.empty_password));
+                    firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, task -> {
+                        updateViews();
+                        if (task.isSuccessful()) {
+                            if (!firebaseAuth.getCurrentUser().isEmailVerified()) {
+                                alertUserAboutVerificationEmail();
+                            } else {
+                                startMainActivity();
+                            }
+                        } else {
+                            displayErrorMessage(getString(R.string.error_invalid_credentials));
+                        }
+                    });
+                } else {
+                    displayErrorMessage(getString(R.string.empty_password));
+                }
+            } else {
+                displayErrorMessage(getString(R.string.error_invalid_email));
             }
-        }else{
-            displayErrorMessage(getString(R.string.error_invalid_email));
         }
     }
 
@@ -122,11 +133,15 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void alertUserAboutVerificationEmail() {
-        CustomDialog customDialog = new CustomDialog(this,"Please use the instructions in the email we sent you to verify your account.");
-        customDialog.show();
+         customDialog = new CustomDialog(this,getString(R.string.email_verification_sent),this,true);
+         customDialog.setNegativeButtonMessage("RESEND  EMAIL");
+         customDialog.setPositiveButtonMessage("ALRIGHT");
+         customDialog.setCanceledOnTouchOutside(false);
+         customDialog.show();
     }
 
     private void updateViews() {
+
         if(signInButton.getVisibility() == View.VISIBLE){
             signInButton.setVisibility(View.INVISIBLE);
             loggingProgressBar.setVisibility(View.VISIBLE);
@@ -138,26 +153,39 @@ public class LoginActivity extends AppCompatActivity {
             loggingProgressBar.setVisibility(View.INVISIBLE);
         }
     }
+
     @Override
     public void onStart(){
         super.onStart();
         firebaseAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+
         if(currentUser!=null){
               //here we have the case when the user
              //closed the app before we were able to sign him out
-            if(!currentUser.isEmailVerified()){
-                firebaseAuth.signOut();
-            }else {
+            if(currentUser.isEmailVerified()){
+
                 startActivity(new Intent(this, MainActivity.class));
             }
         }
     }
 
+
     @Override
-    protected void onStop() {
-        super.onStop();
-        //finish the activity when it is no longer visible
+    public void positiveButtonPressed() {
+        customDialog.hide();
+    }
+
+    @Override
+    public void negativeButtonPressed() {
+        firebaseAuth.getCurrentUser().sendEmailVerification();
+        customDialog.hide();
+        Toast.makeText(this, "WE HAVE SENT YOU A NEW EMAIL.", Toast.LENGTH_LONG).show();
+
+    }
+
+    @Override
+    public void onBackPressed() {
         finish();
     }
 }

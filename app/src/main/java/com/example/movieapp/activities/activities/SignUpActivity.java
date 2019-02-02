@@ -1,96 +1,109 @@
 package com.example.movieapp.activities.activities;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.movieapp.R;
+import com.example.movieapp.activities.Model.CustomDialog;
 import com.example.movieapp.activities.Model.Useful;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
-public class SignUpActivity extends AppCompatActivity {
-    private EditText emailField;
-    private EditText passwordField;
-    private EditText reenteredPasswordField;
+public class SignUpActivity extends AppCompatActivity
+implements CustomDialog.CustomDialogInterface {
+    private EditText emailField,passwordField,reenteredPasswordField,nicknameField;
     private TextView errorMessage;
     private  Button nextButton;
     private ProgressBar progressBar;
+    private TextView hint1,hint2,hint3,hint4;
+    private FirebaseAuth firebaseAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
 
-        initializeViews();
+        initializeUI();
 
+        firebaseAuth = FirebaseAuth.getInstance();
 
     }
 
-    private void initializeViews() {
-        emailField = findViewById(R.id.email_field_sign_up);
-        passwordField = findViewById(R.id.password_field_sign_up);
-        reenteredPasswordField = findViewById(R.id.reenter_password_field_sign_up);
-        errorMessage = findViewById(R.id.error_message_sign_up);
-        progressBar = findViewById(R.id.loading_progress_bar_sign_up);
+    private void initializeUI() {
+        initializeViews();
 
-        emailField.setOnFocusChangeListener((v, hasFocus) -> {
-            if(hasFocus){
-                emailField.getBackground()
-                        .mutate().setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_ATOP);
-            }else {
-                emailField.getBackground()
-                        .mutate().setColorFilter(Color.parseColor("#0063E0"),PorterDuff.Mode.SRC_ATOP);
-            }
-        });
-        passwordField.setOnFocusChangeListener((v, hasFocus) -> {
-            if(hasFocus){
-                passwordField.getBackground()
-                        .mutate().setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_ATOP);
-            }else {
-                passwordField.getBackground()
-                        .mutate().setColorFilter(Color.parseColor("#0063E0"),PorterDuff.Mode.SRC_ATOP);
-            }
-        });
-        reenteredPasswordField.setOnFocusChangeListener((v, hasFocus) -> {
-            if(hasFocus){
-                reenteredPasswordField.getBackground()
-                        .mutate().setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_ATOP);
-            }else {
-                reenteredPasswordField.getBackground()
-                        .mutate().setColorFilter(Color.parseColor("#0063E0"),PorterDuff.Mode.SRC_ATOP);
-            }
-        });
+
+        customiseEditText(emailField,hint1);
+        customiseEditText(passwordField,hint2);
+        customiseEditText(reenteredPasswordField,hint3);
+        customiseEditText(nicknameField,hint4);
+
 
 
         nextButton = findViewById(R.id.next_button_sign_up);
         nextButton.setOnClickListener(view -> signUserUp());
     }
 
+    private void initializeViews() {
+        hint1 = findViewById(R.id.hint_enter_email);
+        hint2 = findViewById(R.id.hint_enter_password);
+        hint3 = findViewById(R.id.hint_reenter_password);
+        hint4 = findViewById(R.id.hint_enter_nickname);
+
+        emailField = findViewById(R.id.email_field_sign_up);
+        passwordField = findViewById(R.id.password_field_sign_up);
+        reenteredPasswordField = findViewById(R.id.reentered_password_field);
+        nicknameField = findViewById(R.id.nickname_field);
+
+        errorMessage = findViewById(R.id.error_message_sign_up);
+        progressBar = findViewById(R.id.loading_progress_bar_sign_up);
+        ImageView backButton = findViewById(R.id.back_button_sign_up);
+        backButton.setOnClickListener(view -> finish());
+    }
+
+    private void customiseEditText(EditText editText ,TextView hint) {
+        editText.setOnFocusChangeListener((v, hasFocus) -> {
+            if(hasFocus){
+                editText.getBackground()
+                        .mutate().setColorFilter(Color.parseColor("#76B900"), PorterDuff.Mode.SRC_ATOP);
+                hint.setTextColor(Color.parseColor("#A5B253"));
+            }else {
+                editText.getBackground()
+                        .mutate().setColorFilter(Color.parseColor("#ffffff"),PorterDuff.Mode.SRC_ATOP);
+                hint.setTextColor(Color.parseColor("#ffffff"));
+            }
+        });
+    }
+
+
+
     private void signUserUp() {
         String email = emailField.getText().toString().trim();
         String password = passwordField.getText().toString().trim();
         String reenteredPassword = reenteredPasswordField.getText().toString().trim();
-        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
-        if(areCredentialsValid(email,password,reenteredPassword)){
+        String nickname = nicknameField.getText().toString().trim();
+
+
+
+        if(areCredentialsValid(email,password,reenteredPassword,nickname)){
             updateViews();
             firebaseAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(this, task -> {
                 if(task.isSuccessful()) {
-                    startActivity(new Intent(this, EmailVerificationActivity.class));
+                    updateUserNickname(nickname);
+                    informUserAboutVerificationEmail();
+                    firebaseAuth.getCurrentUser().sendEmailVerification();
                 }else {
                     Toast.makeText(this, "Cannot create account", Toast.LENGTH_LONG).show();
                     clearFields();
@@ -99,6 +112,19 @@ public class SignUpActivity extends AppCompatActivity {
 
             });
             }
+    }
+
+    private void updateUserNickname(String nickname) {
+        firebaseAuth.getCurrentUser().updateProfile(new UserProfileChangeRequest.Builder()
+                                                     .setDisplayName(nickname)
+                                                     .build());
+    }
+
+    private void informUserAboutVerificationEmail() {
+        CustomDialog customDialog = new CustomDialog(this, getString(R.string.email_verification_sent), this,false);
+        customDialog.setCanceledOnTouchOutside(false);
+        customDialog.show();
+
     }
 
     private void updateViews() {
@@ -117,10 +143,12 @@ public class SignUpActivity extends AppCompatActivity {
         reenteredPasswordField.setText("");
     }
 
-    private boolean areCredentialsValid(String email, String password, String reenteredPassword) {
+    private boolean areCredentialsValid(String email, String password, String reenteredPassword,
+                                        String nickname) {
         if(Useful.isEmailValid(email)){
             if(!password.isEmpty()) {
                 if (password.equals(reenteredPassword)) {
+                     if(!nickname.isEmpty())
                       return true;
                 } else {
                     displayErrorMessage(getString(R.string.password_match));
@@ -144,5 +172,16 @@ public class SignUpActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         finish();
+    }
+
+
+    @Override
+    public void positiveButtonPressed() {
+        finish();
+    }
+
+    @Override
+    public void negativeButtonPressed() {
+
     }
 }
