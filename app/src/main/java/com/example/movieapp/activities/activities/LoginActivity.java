@@ -161,11 +161,10 @@ public class LoginActivity extends AppCompatActivity implements CustomDialog.Cus
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
 
         if(currentUser!=null){
-              //here we have the case when the user
-             //closed the app before we were able to sign him out
             if(currentUser.isEmailVerified()){
-
-                startActivity(new Intent(this, MainActivity.class));
+                Intent startMainActivityIntent = new Intent(this,MainActivity.class);
+                startMainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(startMainActivityIntent);
             }
         }
     }

@@ -10,7 +10,7 @@
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="130dp"
+        android:layout_height="150dp"
         android:background="#404040"
 
         >
@@ -18,7 +18,7 @@
         <ImageView
             android:id="@+id/image_simple_list"
             android:layout_width="120dp"
-            android:layout_height="120dp"
+            android:layout_height="140dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
@@ -52,7 +52,7 @@
             android:layout_marginBottom="8dp"
             android:text="A ticking-time-bomb insomniac and a slippery soap salesman channel primal male aggression into a shocking new form of therapy..."
             android:textColor="#B5FFF3"
-            android:textSize="15sp"
+            android:textSize="17sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"

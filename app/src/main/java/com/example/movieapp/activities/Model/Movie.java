@@ -49,7 +49,7 @@ public class Movie implements Parcelable {
         this.genres = genres;
         isSaved =false;
     }
-    //default constructor for room
+    //default constructor for Room database
     public Movie (){
 
     }
@@ -66,12 +66,24 @@ public class Movie implements Parcelable {
         return overview;
     }
     public String getShortOverview(){
-        if(overview.length()>100){
-            return overview.substring(0,100);
+        if(overview.length()>110){
+            StringBuilder stringBuilder = new StringBuilder();
+            for(int i =0;i < 110;i++){
+                stringBuilder.append(overview.charAt(i));
+            }
+            int currentPosition = stringBuilder.length()- 1;
+            while(stringBuilder.charAt(currentPosition) !=' '){
+                stringBuilder.deleteCharAt(currentPosition);
+                 currentPosition--;
+            }
+            return stringBuilder.toString() + "...";
+
         }else {
             return overview;
         }
     }
+
+
 
     public boolean isSaved() {
         return isSaved;

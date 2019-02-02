@@ -4,10 +4,9 @@ import android.app.SearchManager;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
@@ -19,7 +18,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -41,7 +39,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements CustomDialog.CustomDialogInterface {
+public class MainActivity extends AppCompatActivity {
 
     private String currentFragment;
     private  ArrayList<Movie> popularMovies;
@@ -58,7 +56,6 @@ public class MainActivity extends AppCompatActivity implements CustomDialog.Cust
     private DatabaseInterface databaseInterface;
     private int numberOfMoviesSaved;
     private TextView errorMessage;
-    private CustomDialog customDialog;
     private String nickname;
 
 
@@ -73,20 +70,13 @@ public class MainActivity extends AppCompatActivity implements CustomDialog.Cust
         setUpToolbar();
 
 
-        if(Useful.isNetworkAvailable(this))
-        pushRequests();
+        if (Useful.isNetworkAvailable(this))
+            pushRequests();
         else {
-            showNetworkUnavailableError();
+            errorMessage.setVisibility(View.VISIBLE);
         }
 
     }
-
-    private void showNetworkUnavailableError() {
-        errorMessage.setVisibility(View.VISIBLE);
-         customDialog = new CustomDialog(this,getString(R.string.please_connect),this,false);
-         customDialog.show();
-    }
-
 
 
 
@@ -170,8 +160,19 @@ public class MainActivity extends AppCompatActivity implements CustomDialog.Cust
                     drawerLayout.closeDrawers();
                     menuItem.setChecked(true);
                     uncheckItems(menuItem.getItemId(),navigationView.getMenu());
-                    if(!currentFragment.equals(Constraints.VIEW_PAGER_FRAGMENT))
+                    if( ! currentFragment.equals(Constraints.VIEW_PAGER_FRAGMENT))
+                        if(viewPagerFragment == null)
+                        {
+                            Fragment fragment = fragmentManager.findFragmentByTag(currentFragment);
+                            //this is the case when the user presses home multiple times
+                            if(fragment != null)
+                                fragmentManager.beginTransaction().
+                                        remove(fragment)
+                                        .commit();
+                        }
+                            else
                         showViewPagerFragment();
+
                     return true;
 
                 case R.id.saved_movies_item :
@@ -184,7 +185,6 @@ public class MainActivity extends AppCompatActivity implements CustomDialog.Cust
 
                 case R.id.settings_item :
                     drawerLayout.closeDrawers();
-                    menuItem.setChecked(true);
                     uncheckItems(menuItem.getItemId(),navigationView.getMenu());
                     startSettingsActivity();
                     return true;
@@ -269,10 +269,10 @@ public class MainActivity extends AppCompatActivity implements CustomDialog.Cust
 
 
     private void showViewPagerFragment() {
-        currentFragment = Constraints.VIEW_PAGER_FRAGMENT;
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.frameLayout_placeholder,viewPagerFragment,currentFragment);
-        fragmentTransaction.commit();
+              currentFragment = Constraints.VIEW_PAGER_FRAGMENT;
+              FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+              fragmentTransaction.replace(R.id.frameLayout_placeholder, viewPagerFragment, currentFragment);
+              fragmentTransaction.commit();
     }
 
     private void updateUI() {
@@ -320,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements CustomDialog.Cust
 
         StringRequest popularMoviesRequest = new StringRequest(Request.Method.GET,popularMoviesUri,
                 response -> runOnUiThread(()-> {
-                   popularMovies= Useful.getMovies(response);
+                    popularMovies= Useful.getMovies(response);
                     //the call is made in the background, the second requests
                     //may not wait for the first one to finish
                     requestQueue.add(upcomingMoviesRequest);
@@ -334,10 +334,6 @@ public class MainActivity extends AppCompatActivity implements CustomDialog.Cust
     }
 
 
-    @Override
-    public void onBackPressed() {
-        finish();
-    }
 
     @Override
     protected void onRestart() {
@@ -358,13 +354,4 @@ public class MainActivity extends AppCompatActivity implements CustomDialog.Cust
     }
 
 
-    @Override
-    public void positiveButtonPressed() {
-        customDialog.hide();
-    }
-
-    @Override
-    public void negativeButtonPressed() {
-
-    }
 }

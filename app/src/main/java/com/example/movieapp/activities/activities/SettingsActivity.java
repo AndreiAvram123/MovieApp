@@ -46,7 +46,9 @@ implements SettingsFragment.SettingsFragmentInterface{
     }
 
     private void startLogInActivity() {
-        startActivity(new Intent(this,LoginActivity.class));
+        Intent intent = new Intent(this,LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
 
     }
 }

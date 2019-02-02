@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MovieApp</string>
+    <string name="app_name">Movio</string>
     <string name="error_invalid_email">Invalid email</string>
     <string name="error_invalid_credentials">This email and password combination is incorrect</string>
     <string name="log_in_button_hint">LOG IN</string>
