@@ -12,13 +12,17 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.SearchView;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -28,7 +32,6 @@ import com.android.volley.toolbox.Volley;
 import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.AppDatabase;
 import com.example.movieapp.activities.Model.Constraints;
-import com.example.movieapp.activities.Model.CustomDialog;
 import com.example.movieapp.activities.Model.Movie;
 import com.example.movieapp.activities.Model.Useful;
 import com.example.movieapp.activities.fragments.SavedMoviesFragment;
@@ -42,13 +45,13 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private String currentFragment;
-    private  ArrayList<Movie> popularMovies;
-    private  ArrayList<Movie> upcomingMovies;
+    private ArrayList<Movie> popularMovies;
+    private ArrayList<Movie> upcomingMovies;
     private List<Movie> savedMovies;
     private static final String popularMoviesUri = "https://api.themoviedb.org/3/movie/popular?api_key=55398af9b60eda4997b848dd5ccf7d44&language=en-US&page=1";
-    private static final  String upcomingMoviesUri = "https://api.themoviedb.org/3/movie/upcoming?api_key=55398af9b60eda4997b848dd5ccf7d44&language=en-US&page=1&region=GB";
+    private static final String upcomingMoviesUri = "https://api.themoviedb.org/3/movie/upcoming?api_key=55398af9b60eda4997b848dd5ccf7d44&language=en-US&page=1&region=GB";
     private DrawerLayout drawerLayout;
-    private SearchView searchView;
+    private android.support.v7.widget.SearchView searchView;
     private ViewPagerFragment viewPagerFragment;
     private RequestQueue requestQueue;
     private FragmentManager fragmentManager;
@@ -57,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
     private int numberOfMoviesSaved;
     private TextView errorMessage;
     private String nickname;
+    private boolean isHomeBackEnable = false;
+    private ImageView homeButton;
 
 
     @Override
@@ -79,25 +84,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     /**
      * Create a Thread object in order to
      * perform operations on the Room database
      * THIS IS REQUIRED BY ROOM : TO HAVE
      * A BACKGROUND THREAD FOR DATABASE
      * OPERATIONS
+     *
      * @return
      */
     private void createSavedMoviesFragment() {
-       Thread backgroundThread = new Thread(
-               () -> {
-                  savedMovies = databaseInterface.selectAllMovies();
-                  numberOfMoviesSaved = savedMovies.size();
-                  savedMoviesFragment = SavedMoviesFragment.newInstance(savedMovies);
-               }
-       );
-       //always use start
-       backgroundThread.start();
+        Thread backgroundThread = new Thread(
+                () -> {
+                    savedMovies = databaseInterface.selectAllMovies();
+                    numberOfMoviesSaved = savedMovies.size();
+                    savedMoviesFragment = SavedMoviesFragment.newInstance(savedMovies);
+                }
+        );
+        //always use start
+        backgroundThread.start();
     }
 
     /**
@@ -106,12 +111,12 @@ public class MainActivity extends AppCompatActivity {
      * the saved ones, if so update the
      * movies from the saved fragment
      */
-    private void checkForSavedMovies(){
+    private void checkForSavedMovies() {
         Thread backgroundThread = new Thread(
                 () -> {
                     int numberOfMoviesInDatabase = databaseInterface.countMovies();
-                    if(numberOfMoviesInDatabase ==numberOfMoviesSaved-1
-                    || numberOfMoviesInDatabase == numberOfMoviesSaved +1)
+                    if (numberOfMoviesInDatabase == numberOfMoviesSaved - 1
+                            || numberOfMoviesInDatabase == numberOfMoviesSaved + 1)
                         updateSavedMoviesFragment();
 
                 }
@@ -132,16 +137,19 @@ public class MainActivity extends AppCompatActivity {
     private void initializeDatabase() {
         //use getApplicationContext because data is related to the
         //whole application
-        AppDatabase appDatabase = Room.databaseBuilder(getApplicationContext(),AppDatabase.class,
+        AppDatabase appDatabase = Room.databaseBuilder(getApplicationContext(), AppDatabase.class,
                 "movies_database").build();
         databaseInterface = appDatabase.databaseInterface();
     }
 
     private void initializeUI() {
+
         errorMessage = findViewById(R.id.error_message_main);
         Useful.makeActivityFullscreen(getWindow());
         fragmentManager = getSupportFragmentManager();
         drawerLayout = findViewById(R.id.drawer_layout);
+         homeButton = findViewById(R.id.home_back);
+        homeButton.setOnClickListener(view -> triggerHomeButton());
 
 
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -149,43 +157,41 @@ public class MainActivity extends AppCompatActivity {
 
 
         navigationView.setNavigationItemSelectedListener(menuItem -> {
-            switch (menuItem.getItemId()){
+            switch (menuItem.getItemId()) {
                 case R.id.edit_profile_item:
                     drawerLayout.closeDrawers();
-                    uncheckItems(menuItem.getItemId(),navigationView.getMenu());
-                    startActivity(new Intent(this,EditProfileActivity.class));
+                    uncheckItems(menuItem.getItemId(), navigationView.getMenu());
+                    startActivity(new Intent(this, EditProfileActivity.class));
                     return true;
 
                 case R.id.home_item:
                     drawerLayout.closeDrawers();
                     menuItem.setChecked(true);
-                    uncheckItems(menuItem.getItemId(),navigationView.getMenu());
-                    if( ! currentFragment.equals(Constraints.VIEW_PAGER_FRAGMENT))
-                        if(viewPagerFragment == null)
-                        {
+                    uncheckItems(menuItem.getItemId(), navigationView.getMenu());
+                    if (!currentFragment.equals(Constraints.VIEW_PAGER_FRAGMENT))
+                        if (viewPagerFragment == null) {
                             Fragment fragment = fragmentManager.findFragmentByTag(currentFragment);
                             //this is the case when the user presses home multiple times
-                            if(fragment != null)
+                            if (fragment != null)
                                 fragmentManager.beginTransaction().
                                         remove(fragment)
                                         .commit();
-                        }
-                            else
-                        showViewPagerFragment();
+                        } else
+                            showViewPagerFragment();
 
                     return true;
 
-                case R.id.saved_movies_item :
-                     drawerLayout.closeDrawers();
-                     menuItem.setChecked(true);
-                     uncheckItems(menuItem.getItemId(),navigationView.getMenu());
-                     showSavedMoviesFragment();
-                     currentFragment = Constraints.SAVED_MOVIES_FRAGMENT;
-                     return true;
-
-                case R.id.settings_item :
+                case R.id.saved_movies_item:
                     drawerLayout.closeDrawers();
-                    uncheckItems(menuItem.getItemId(),navigationView.getMenu());
+                    menuItem.setChecked(true);
+                    uncheckItems(menuItem.getItemId(), navigationView.getMenu());
+                    showSavedMoviesFragment();
+                    currentFragment = Constraints.SAVED_MOVIES_FRAGMENT;
+                    return true;
+
+                case R.id.settings_item:
+                    drawerLayout.closeDrawers();
+                    uncheckItems(menuItem.getItemId(), navigationView.getMenu());
                     startSettingsActivity();
                     return true;
 
@@ -201,31 +207,33 @@ public class MainActivity extends AppCompatActivity {
         nicknameTextView.setText(nickname);
     }
 
+
     private void startSettingsActivity() {
-        Intent intent = new Intent(this,SettingsActivity.class);
-        intent.putExtra(Constraints.KEY_NICKNAME_SETTINGS,nickname);
+        Intent intent = new Intent(this, SettingsActivity.class);
+        intent.putExtra(Constraints.KEY_NICKNAME_SETTINGS, nickname);
         startActivity(intent);
     }
 
     private void showSavedMoviesFragment() {
-        if(savedMoviesFragment != null){
-        currentFragment = Constraints.SAVED_MOVIES_FRAGMENT;
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.frameLayout_placeholder,savedMoviesFragment,
-                Constraints.SAVED_MOVIES_FRAGMENT);
-        fragmentTransaction.commit();
+        if (savedMoviesFragment != null) {
+            currentFragment = Constraints.SAVED_MOVIES_FRAGMENT;
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.frameLayout_placeholder, savedMoviesFragment,
+                    Constraints.SAVED_MOVIES_FRAGMENT);
+            fragmentTransaction.commit();
         }
     }
 
     /**
      * Use this to uncheck items in the
      * menu from the navigation drawer
+     *
      * @param itemId
      * @param menu
      */
     private void uncheckItems(int itemId, Menu menu) {
-        for(int i = 0;i < menu.size();i++){
-            if(itemId != menu.getItem(i).getItemId()){
+        for (int i = 0; i < menu.size(); i++) {
+            if (itemId != menu.getItem(i).getItemId()) {
                 menu.getItem(i).setChecked(false);
             }
         }
@@ -235,18 +243,49 @@ public class MainActivity extends AppCompatActivity {
     private void setUpToolbar() {
         Toolbar toolbar = findViewById(R.id.main_activity_toolbar);
         setSupportActionBar(toolbar);
+
         ActionBar actionBar = getSupportActionBar();
         actionBar.setTitle("");
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp);
-        toolbar.setOnClickListener(view -> searchView.setIconified(false));
+
+        toolbar.setOnClickListener(view -> {
+            searchView.setIconified(false);
+              triggerHomeButton();
+             }
+
+
+        );
+    }
+
+
+
+    private void triggerHomeButton() {
+         if(!isHomeBackEnable && searchView.isIconified()){
+             drawerLayout.openDrawer(Gravity.START);
+         }else {
+
+
+             if (!isHomeBackEnable) {
+                 homeButton.setImageResource(R.drawable.ic_arrow_back_black_24dp);
+                 Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_first_stage);
+                 homeButton.startAnimation(animation);
+                 isHomeBackEnable = true;
+                 searchView.setIconified(false);
+             } else {
+                 //the user has pressed homeButton image
+                 homeButton.setImageResource(R.drawable.ic_menu_black_24dp);
+                 Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_second_stage);
+                 homeButton.startAnimation(animation);
+                 isHomeBackEnable = false;
+                 searchView.setIconified(true);
+             }
+         }
 
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.menu_main,menu);
+        menuInflater.inflate(R.menu.menu_main, menu);
         searchView = (SearchView) menu.findItem(R.id.search_bar).getActionView();
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
@@ -254,94 +293,80 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case android.R.id.home:
-                //use Gravity.START in order to optimize for right to left text
-                  drawerLayout.openDrawer(Gravity.START);
-                  return true;
-
-
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
 
     private void showViewPagerFragment() {
-              currentFragment = Constraints.VIEW_PAGER_FRAGMENT;
-              FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-              fragmentTransaction.replace(R.id.frameLayout_placeholder, viewPagerFragment, currentFragment);
-              fragmentTransaction.commit();
+        currentFragment = Constraints.VIEW_PAGER_FRAGMENT;
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frameLayout_placeholder, viewPagerFragment, currentFragment);
+        fragmentTransaction.commit();
     }
 
     private void updateUI() {
         currentFragment = Constraints.VIEW_PAGER_FRAGMENT;
-        viewPagerFragment = ViewPagerFragment.newInstance(upcomingMovies,popularMovies);
+        viewPagerFragment = ViewPagerFragment.newInstance(upcomingMovies, popularMovies);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.frameLayout_placeholder,viewPagerFragment,currentFragment);
+        fragmentTransaction.add(R.id.frameLayout_placeholder, viewPagerFragment, currentFragment);
         fragmentTransaction.commit();
     }
 
     /**
      * This method pushes requests  in order to get data
      * from the movie database
-     *
      */
     private void pushRequests() {
         //initialize volley
         requestQueue = Volley.newRequestQueue(getApplicationContext());
-         //request a string response from the url for popular movies
+        //request a string response from the url for popular movies
 
-       StringRequest upcomingMoviesRequest = new StringRequest(Request.Method.GET,upcomingMoviesUri,
-               //REMEMBER THAT OPERATIONS SHOULD BE DONE IN
-               //THE MAIN THREAD
-               response -> runOnUiThread(()-> {
+        StringRequest upcomingMoviesRequest = new StringRequest(Request.Method.GET, upcomingMoviesUri,
+                //REMEMBER THAT OPERATIONS SHOULD BE DONE IN
+                //THE MAIN THREAD
+                response -> runOnUiThread(() -> {
 
-                   upcomingMovies = Useful.getMovies(response);
-                   /**
-                    * SORT THE MOVIES BY DATE
-                    * The comparable interface works this
-                    * way
-                    * IF YOU WANT TO change the position of movie1
-                    * with the position of movie 2 then you must return 1(tell the
-                    * comparator "YES CHANGE THEM")
-                    * IF THE COMPARATOR RECEIVES 0 OR -1 DOES NOT DO ANYTHING
-                    */
-                   upcomingMovies.sort((movie1,movie2)-> movie1.getReleaseDate().compareTo(
-                           movie2.getReleaseDate()
-                   ));
+                    upcomingMovies = Useful.getMovies(response);
+                    /**
+                     * SORT THE MOVIES BY DATE
+                     * The comparable interface works this
+                     * way
+                     * IF YOU WANT TO change the position of movie1
+                     * with the position of movie 2 then you must return 1(tell the
+                     * comparator "YES CHANGE THEM")
+                     * IF THE COMPARATOR RECEIVES 0 OR -1 DOES NOT DO ANYTHING
+                     */
+                    upcomingMovies.sort((movie1, movie2) -> movie1.getReleaseDate().compareTo(
+                            movie2.getReleaseDate()
+                    ));
 
-                   //UPDATE THE UI WHEN REQUEST FINISHES
-                   updateUI();
-               }), error->{
+                    //UPDATE THE UI WHEN REQUEST FINISHES
+                    updateUI();
+                }), error -> {
 
-       });
+        });
 
-        StringRequest popularMoviesRequest = new StringRequest(Request.Method.GET,popularMoviesUri,
-                response -> runOnUiThread(()-> {
-                    popularMovies= Useful.getMovies(response);
+        StringRequest popularMoviesRequest = new StringRequest(Request.Method.GET, popularMoviesUri,
+                response -> runOnUiThread(() -> {
+                    popularMovies = Useful.getMovies(response);
                     //the call is made in the background, the second requests
                     //may not wait for the first one to finish
                     requestQueue.add(upcomingMoviesRequest);
-                }), error ->{
+                }), error -> {
 
         });
 
 
-       requestQueue.add(popularMoviesRequest);
+        requestQueue.add(popularMoviesRequest);
 
     }
-
 
 
     @Override
     protected void onRestart() {
         //the user has pressed back in the login activity after
         //he has signed out
-        if(FirebaseAuth.getInstance().getCurrentUser() == null){
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             finish();
-        }else {
+        } else {
             super.onRestart();
             //set the query to empty
             searchView.setQuery("", false);

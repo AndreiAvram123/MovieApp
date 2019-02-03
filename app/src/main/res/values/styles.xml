@@ -32,5 +32,8 @@
          <item name="android:textColorSecondary">#ffffff</item>
     </style>
 
+    <style name="AppTheme.SearchView" parent="Widget.AppCompat.SearchView">
+        <item name="closeIcon">@android:color/transparent</item>
+    </style>
 
 </resources>
