@@ -4,11 +4,12 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.view.WindowManager;
 
 import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.Constraints;
 import com.example.movieapp.activities.Model.CustomDialog;
-import com.example.movieapp.activities.Model.Useful;
+import com.example.movieapp.activities.Model.Utilities;
 import com.example.movieapp.activities.fragments.EditProfileFragment;
 import com.example.movieapp.activities.fragments.UpdateCredentialFragment;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,20 +33,24 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
 
          firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-         Useful.makeActivityFullscreen(getWindow());
+
 
          initializeUI();
-
+         makeActivityFullscreen();
 
     }
 
 
+    private  void  makeActivityFullscreen(){
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+    }
 
     private void showErrorDialog() {
          customDialog = new CustomDialog(this,
-                        getString(R.string.operation_unsuccessful),this,false);
-         customDialog.setCanceledOnTouchOutside(false);
+                        getString(R.string.operation_unsuccessful),this);
+
          customDialog.show();
     }
 
@@ -81,8 +86,7 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
      */
     private void showMessageDialog() {
         customDialog = new CustomDialog(this,
-                getString(R.string.operation_successful),this,false);
-        customDialog.setCanceledOnTouchOutside(false);
+                getString(R.string.operation_successful),this);
         customDialog.show();
     }
     /**
@@ -195,12 +199,12 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
 
 
     @Override
-    public void positiveButtonPressed() {
+    public void button1Pressed() {
         customDialog.hide();
     }
 
     @Override
-    public void negativeButtonPressed() {
+    public void button2Pressed() {
 
     }
 }

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.activities.LoginActivity"
+    tools:context=".activities.activities.StartScreenActivity"
     android:background="#252525"
     android:focusableInTouchMode="true"
 
@@ -119,7 +119,7 @@
         android:layout_marginBottom="8dp"
         android:background="@drawable/round_shape"
         android:backgroundTint="#89B6E8"
-        android:text=" SIGN UP FREE"
+        android:text="@string/sign_up"
         android:textColor="#000000"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

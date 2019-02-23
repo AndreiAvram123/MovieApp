@@ -4,13 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.Constraints;
 import com.example.movieapp.activities.fragments.SettingsFragment;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class SettingsActivity extends AppCompatActivity
 implements SettingsFragment.SettingsFragmentInterface{
@@ -46,7 +44,7 @@ implements SettingsFragment.SettingsFragmentInterface{
     }
 
     private void startLogInActivity() {
-        Intent intent = new Intent(this,LoginActivity.class);
+        Intent intent = new Intent(this, StartScreenActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
 

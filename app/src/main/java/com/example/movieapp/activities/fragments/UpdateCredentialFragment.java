@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.Constraints;
-import com.example.movieapp.activities.Model.Useful;
+import com.example.movieapp.activities.Model.Utilities;
 
 /**
  * This fragment is used in order to change
@@ -98,7 +98,7 @@ public class UpdateCredentialFragment extends Fragment {
             switch (credential){
                 case Constraints.KEY_EMAIL_CREDENTIAL :
                     String email = field2.getText().toString().trim();
-                     if(!email.isEmpty()&& Useful.isEmailValid(email))
+                     if(!email.isEmpty()&& Utilities.isEmailValid(email))
                          updateCredentialFragmentInterface.updateEmail(email);
                      else {
                          displayErrorMessage(R.string.error_invalid_email);

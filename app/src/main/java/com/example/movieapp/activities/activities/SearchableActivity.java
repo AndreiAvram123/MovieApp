@@ -17,26 +17,26 @@ import com.android.volley.toolbox.Volley;
 import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.CustomDivider;
 import com.example.movieapp.activities.Model.Movie;
-import com.example.movieapp.activities.Model.Useful;
+import com.example.movieapp.activities.Model.Utilities;
 import com.example.movieapp.activities.adapters.MainAdapter;
 
 import java.util.ArrayList;
 
 public class SearchableActivity extends AppCompatActivity{
-    private static final String TAG = SearchableActivity.class.getSimpleName();
+
     private RecyclerView recyclerView;
     private TextView no_results_error;
-    private ImageView back_image;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_searchable);
 
-        Useful.makeActivityFullscreen(getWindow());
+        makeActivityFullscreen();
 
         recyclerView = findViewById(R.id.recycler_view_search_activity);
         no_results_error = findViewById(R.id.no_result_error_search);
-        back_image = findViewById(R.id.back_image_seach);
+        ImageView back_image = findViewById(R.id.back_image_seach);
 
         back_image.setOnClickListener(view -> finish());
 
@@ -51,6 +51,11 @@ public class SearchableActivity extends AppCompatActivity{
 
     }
 
+    private  void  makeActivityFullscreen(){
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+    }
     private void pushRequest(String uri) {
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -64,7 +69,7 @@ public class SearchableActivity extends AppCompatActivity{
     }
 
     private void updateUI(String responseData) {
-        ArrayList<Movie> searchedMovies = Useful.getMovies(responseData);
+        ArrayList<Movie> searchedMovies = Utilities.processJSONFormat(responseData);
         if(searchedMovies.isEmpty()){
             no_results_error.setVisibility(View.VISIBLE);
         }else {

@@ -12,30 +12,33 @@ import android.widget.TextView;
 import com.example.movieapp.R;
 
 public class CustomDialog extends Dialog {
-  private String message;
-  private Button negativeButton;
+  private String dialogMessage;
+  private Button button2;
+  private Button button1;
   private CustomDialogInterface customDialogInterface;
-  private boolean showNegativeButton;
-  private String positiveButtonMessage = "OK";
-  private String negativeButtonMessage ="CANCEL";
+  private boolean enableSecondButton;
+  private String button1Message;
+  private String button2Message;
 
 
-     public CustomDialog (@NonNull Context context,String message,
-                          Activity activity,boolean showNegativeButton)
+     public CustomDialog (@NonNull Context context,String dialogMessage,
+                          Activity activity)
      {
         super(context);
-        this.message = message;
-        this.showNegativeButton = showNegativeButton;
+        this.dialogMessage = dialogMessage;
         customDialogInterface = (CustomDialogInterface) activity;
      }
 
-     public void setPositiveButtonMessage(String message){
-       positiveButtonMessage = message;
-     }
-     public void setNegativeButtonMessage(String message){
-       negativeButtonMessage = message;
+     public void setButton1Message(String message){
+       button1Message = message;
      }
 
+     public void setButton2Message(String message){
+       button2Message = message;
+     }
+     public void enableNegativeButton(){
+         enableSecondButton = true;
+     }
 
 
 
@@ -44,34 +47,33 @@ public class CustomDialog extends Dialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.custom_dialog_layout);
+        setCanceledOnTouchOutside(false);
 
         TextView message = findViewById(R.id.message_custom_dialog);
 
-        message.setText(this.message);
+        message.setText(this.dialogMessage);
 
 
-        Button positiveButton = findViewById(R.id.positive_button_custom_dialog);
+        button1 = findViewById(R.id.positive_button_custom_dialog);
 
-        positiveButton.setText(positiveButtonMessage);
-        positiveButton.setOnClickListener(button-> customDialogInterface.positiveButtonPressed());
+        button1.setText(button1Message);
+        button1.setOnClickListener(button-> customDialogInterface.button1Pressed());
 
-        if(showNegativeButton) {
-            negativeButton = findViewById(R.id.negative_button_custom_dialog);
-            negativeButton.setVisibility(View.VISIBLE);
-            negativeButton.setText(negativeButtonMessage);
-            negativeButton.setOnClickListener(button -> {
-                customDialogInterface.negativeButtonPressed();
-            });
+        if(enableSecondButton) {
+            button2 = findViewById(R.id.negative_button_custom_dialog);
+            button2.setVisibility(View.VISIBLE);
+            button2.setText(button2Message);
+            button2.setOnClickListener(button -> customDialogInterface.button2Pressed());
         }
     }
 
     /**
      * USE THIS INTERFACE IN ORDER TO SET ACTIONS FOR
-     * THE POSITIVE AND NEGATIVE BUTTONS
+     * THE BUTTONS
      */
     public interface CustomDialogInterface{
-       void positiveButtonPressed();
-       void negativeButtonPressed();
+       void button1Pressed();
+       void button2Pressed();
     }
 
 

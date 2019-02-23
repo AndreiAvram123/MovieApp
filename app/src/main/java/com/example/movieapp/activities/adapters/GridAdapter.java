@@ -55,9 +55,5 @@ public class GridAdapter extends BaseAdapter {
 
         return view;
     }
-   public void setSavedMovies(ArrayList<Movie> savedMovies){
-        this.savedMovies = savedMovies;
-        notifyDataSetChanged();
-   }
 
 }

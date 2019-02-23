@@ -4,9 +4,10 @@ import android.app.SearchManager;
 import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
@@ -17,11 +18,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -33,7 +33,7 @@ import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.AppDatabase;
 import com.example.movieapp.activities.Model.Constraints;
 import com.example.movieapp.activities.Model.Movie;
-import com.example.movieapp.activities.Model.Useful;
+import com.example.movieapp.activities.Model.Utilities;
 import com.example.movieapp.activities.fragments.SavedMoviesFragment;
 import com.example.movieapp.activities.fragments.ViewPagerFragment;
 import com.example.movieapp.activities.interfaces.DatabaseInterface;
@@ -44,7 +44,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String currentFragment;
     private ArrayList<Movie> popularMovies;
     private ArrayList<Movie> upcomingMovies;
     private List<Movie> savedMovies;
@@ -56,13 +55,14 @@ public class MainActivity extends AppCompatActivity {
     private RequestQueue requestQueue;
     private FragmentManager fragmentManager;
     private SavedMoviesFragment savedMoviesFragment;
+    //THIS IS USED TO COMMUNICATE WITH THE ROOM DATABASE
     private DatabaseInterface databaseInterface;
     private int numberOfMoviesSaved;
     private TextView errorMessage;
     private String nickname;
-    private boolean isHomeBackEnable = false;
+    private boolean isBackArrowShown = false;
     private ImageView homeButton;
-
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         setUpToolbar();
 
 
-        if (Useful.isNetworkAvailable(this))
+        if (isNetworkAvailable())
             pushRequests();
         else {
             errorMessage.setVisibility(View.VISIBLE);
@@ -85,13 +85,26 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
+     * This method is used to check weather or not there
+     * is internet connection available in the given context
+     */
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
+
+    }
+
+
+    /**
+     * This method obtains data from the Room database
+     * using the DAO interface
+     * <p>
      * Create a Thread object in order to
      * perform operations on the Room database
      * THIS IS REQUIRED BY ROOM : TO HAVE
      * A BACKGROUND THREAD FOR DATABASE
      * OPERATIONS
-     *
-     * @return
      */
     private void createSavedMoviesFragment() {
         Thread backgroundThread = new Thread(
@@ -101,9 +114,11 @@ public class MainActivity extends AppCompatActivity {
                     savedMoviesFragment = SavedMoviesFragment.newInstance(savedMovies);
                 }
         );
-        //always use start
         backgroundThread.start();
     }
+
+    //TODO
+    //replace this method
 
     /**
      * This method checks if the user
@@ -121,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }
         );
-        //always use start
+
         backgroundThread.start();
     }
 
@@ -134,6 +149,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * This method is used to get a reference to the current Room
+     * database for this application (movies_database)
+     * The method also assigns a value to the databaseInterface
+     *
+     * @databaseInterface IS CALLED DAO AND IT IS
+     * USED TO COMMUNICATE WITH THE ROOM DATABASE
+     */
     private void initializeDatabase() {
         //use getApplicationContext because data is related to the
         //whole application
@@ -145,19 +168,52 @@ public class MainActivity extends AppCompatActivity {
     private void initializeUI() {
 
         errorMessage = findViewById(R.id.error_message_main);
-        Useful.makeActivityFullscreen(getWindow());
         fragmentManager = getSupportFragmentManager();
         drawerLayout = findViewById(R.id.drawer_layout);
-         homeButton = findViewById(R.id.home_back);
-        homeButton.setOnClickListener(view -> triggerHomeButton());
+        homeButton = findViewById(R.id.home_back);
+
+        homeButton.setOnClickListener(view -> toggleHomeButton());
+        makeActivityFullscreen();
+
+        configureNavigationView();
+        updateViewHeader();
+    }
+
+    private void makeActivityFullscreen() {
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+    }
+
+    /**
+     * This method is used to update the ViewHeader of the
+     * NavigationView with the current user name
+     */
+    private void updateViewHeader() {
+        View header_layout = navigationView.getHeaderView(0);
+        TextView nicknameTextView = header_layout.findViewById(R.id.nickname_drawer);
+        nickname = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+        nicknameTextView.setText(nickname);
+    }
 
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
+    /**
+     * This method is used to define actions when the user
+     * clicks on each of the item inside the navigationView
+     * First, it gets a reference to the current navigation
+     * view and then uses a NavigationItemSelectedListener to
+     * listen to user touch events
+     * <p>
+     * When the profile_item is selected - we start EditProfileActivity
+     * When the home_item is selected - we show the ViewPagerFragment
+     * When the saved_movies item is selected we show the saved movies fragment
+     */
+    private void configureNavigationView() {
+        navigationView = findViewById(R.id.nav_view);
         navigationView.getMenu().getItem(0).setChecked(true);
-
-
         navigationView.setNavigationItemSelectedListener(menuItem -> {
             switch (menuItem.getItemId()) {
+
                 case R.id.edit_profile_item:
                     drawerLayout.closeDrawers();
                     uncheckItems(menuItem.getItemId(), navigationView.getMenu());
@@ -168,16 +224,10 @@ public class MainActivity extends AppCompatActivity {
                     drawerLayout.closeDrawers();
                     menuItem.setChecked(true);
                     uncheckItems(menuItem.getItemId(), navigationView.getMenu());
-                    if (!currentFragment.equals(Constraints.VIEW_PAGER_FRAGMENT))
-                        if (viewPagerFragment == null) {
-                            Fragment fragment = fragmentManager.findFragmentByTag(currentFragment);
-                            //this is the case when the user presses home multiple times
-                            if (fragment != null)
-                                fragmentManager.beginTransaction().
-                                        remove(fragment)
-                                        .commit();
-                        } else
-                            showViewPagerFragment();
+
+                    if (viewPagerFragment != null) {
+                        showViewPagerFragment();
+                    }
 
                     return true;
 
@@ -186,7 +236,6 @@ public class MainActivity extends AppCompatActivity {
                     menuItem.setChecked(true);
                     uncheckItems(menuItem.getItemId(), navigationView.getMenu());
                     showSavedMoviesFragment();
-                    currentFragment = Constraints.SAVED_MOVIES_FRAGMENT;
                     return true;
 
                 case R.id.settings_item:
@@ -198,13 +247,6 @@ public class MainActivity extends AppCompatActivity {
             }
             return false;
         });
-/**
- * The standard way of updating the header layout
- */
-        View header_layout = navigationView.getHeaderView(0);
-        TextView nicknameTextView = header_layout.findViewById(R.id.nickname_drawer);
-        nickname = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-        nicknameTextView.setText(nickname);
     }
 
 
@@ -214,19 +256,22 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * Call this method in order to show
+     * the SavedMoviesFragment
+     */
     private void showSavedMoviesFragment() {
         if (savedMoviesFragment != null) {
-            currentFragment = Constraints.SAVED_MOVIES_FRAGMENT;
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.frameLayout_placeholder, savedMoviesFragment,
+            fragmentTransaction.replace(R.id.placeholder_main, savedMoviesFragment,
                     Constraints.SAVED_MOVIES_FRAGMENT);
             fragmentTransaction.commit();
         }
     }
 
     /**
-     * Use this to uncheck items in the
-     * menu from the navigation drawer
+     * Use this method to uncheck all items
+     * except from the one passed as the parameter
      *
      * @param itemId
      * @param menu
@@ -239,7 +284,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * This method is used to configure the toolbar
+     * as the ActionBar
+     * We want to open the searchView every time
+     * the user touches the toolbar,so we set
+     * a listener on the toolbar and use the method
+     * setIconified(false) on the searchView reference
+     */
     private void setUpToolbar() {
         Toolbar toolbar = findViewById(R.id.main_activity_toolbar);
         setSupportActionBar(toolbar);
@@ -248,38 +300,57 @@ public class MainActivity extends AppCompatActivity {
         actionBar.setTitle("");
 
         toolbar.setOnClickListener(view -> {
-            searchView.setIconified(false);
-              triggerHomeButton();
-             }
+                    searchView.setIconified(false);
+                    toggleHomeButton();
+                }
 
 
         );
     }
 
+    /**
+     * This method is called each time the
+     * user presses the "home button"
+     * IT IS NOT ACTUALLY A REAL home button
+     * IT IS just an image that plays an
+     * an animation every time it changes its
+     * image resource
+     * <p>
+     * If the searchView is iconified we open the navigation
+     * drawer
+     * If the searchView is not iconified and we are  currently
+     * displaying the back arrow as the home button then call
+     * the method showHomeIcon()
+     * If the searchView is not iconified and we are
+     * currently displaying the home icon, call showBackIcon()
+     */
+    private void toggleHomeButton() {
 
+        if (searchView.isIconified()) {
+            drawerLayout.openDrawer(Gravity.START);
+        } else {
+            if (isBackArrowShown) {
+                showHomeIcon();
+            } else {
+                showBackIcon();
+            }
+        }
+    }
 
-    private void triggerHomeButton() {
-         if(!isHomeBackEnable && searchView.isIconified()){
-             drawerLayout.openDrawer(Gravity.START);
-         }else {
+    private void showBackIcon() {
+        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_first_stage);
+        homeButton.setImageResource(R.drawable.ic_arrow_back_black_24dp);
+        homeButton.startAnimation(animation);
+        isBackArrowShown = true;
+        searchView.setIconified(false);
+    }
 
-
-             if (!isHomeBackEnable) {
-                 homeButton.setImageResource(R.drawable.ic_arrow_back_black_24dp);
-                 Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_first_stage);
-                 homeButton.startAnimation(animation);
-                 isHomeBackEnable = true;
-                 searchView.setIconified(false);
-             } else {
-                 //the user has pressed homeButton image
-                 homeButton.setImageResource(R.drawable.ic_menu_black_24dp);
-                 Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_second_stage);
-                 homeButton.startAnimation(animation);
-                 isHomeBackEnable = false;
-                 searchView.setIconified(true);
-             }
-         }
-
+    private void showHomeIcon() {
+        homeButton.setImageResource(R.drawable.ic_menu_black_24dp);
+        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_second_stage);
+        homeButton.startAnimation(animation);
+        isBackArrowShown = false;
+        searchView.setIconified(true);
     }
 
     @Override
@@ -294,25 +365,44 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
+    /**
+     * Call this method if you want to show the ViewPager fragment
+     */
     private void showViewPagerFragment() {
-        currentFragment = Constraints.VIEW_PAGER_FRAGMENT;
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.frameLayout_placeholder, viewPagerFragment, currentFragment);
-        fragmentTransaction.commit();
-    }
-
-    private void updateUI() {
-        currentFragment = Constraints.VIEW_PAGER_FRAGMENT;
-        viewPagerFragment = ViewPagerFragment.newInstance(upcomingMovies, popularMovies);
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.frameLayout_placeholder, viewPagerFragment, currentFragment);
+        fragmentTransaction.replace(R.id.placeholder_main, viewPagerFragment);
         fragmentTransaction.commit();
     }
 
     /**
-     * This method pushes requests  in order to get data
-     * from the movie database
+     * This method creates one  ViewFragment object and fills
+     * it with data from @upcomingMovies and @popularMovies
+     */
+    private void updateUI() {
+        viewPagerFragment = ViewPagerFragment.newInstance(upcomingMovies, popularMovies);
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.placeholder_main, viewPagerFragment);
+        fragmentTransaction.commit();
+    }
+
+    /**
+     * This method used the Volley class in order to perform
+     * network operation for getting data
+     * First, we initialize a requestQueue that is going
+     * to be used for executing requests
+     * <p>
+     * We create the following requests
+     *
+     * @request1 - upcomingMoviesRequest that gets data
+     * about upcomingMovies in a JSON format
+     * @request2 - popularMoviesRequest that gets data about
+     * popular movies in a JSON format
+     * <p>
+     * !!!!!!VOLLEY DOES NOT WAIT FOR ONE REQUEST TO FINISH UNTIL IT START
+     * ANOTHER ONE !!!!!!
+     * Volley will take the request queue and start a new request right after another
+     * IF YOU WANT FOR EXAMPLE,TO EXECUTE request2 after request1 has finished
+     * call requestQueue.add(request2) in the response body of the request1
      */
     private void pushRequests() {
         //initialize volley
@@ -324,7 +414,7 @@ public class MainActivity extends AppCompatActivity {
                 //THE MAIN THREAD
                 response -> runOnUiThread(() -> {
 
-                    upcomingMovies = Useful.getMovies(response);
+                    upcomingMovies = Utilities.processJSONFormat(response);
                     /**
                      * SORT THE MOVIES BY DATE
                      * The comparable interface works this
@@ -343,18 +433,15 @@ public class MainActivity extends AppCompatActivity {
                 }), error -> {
 
         });
-
         StringRequest popularMoviesRequest = new StringRequest(Request.Method.GET, popularMoviesUri,
                 response -> runOnUiThread(() -> {
-                    popularMovies = Useful.getMovies(response);
+                    popularMovies = Utilities.processJSONFormat(response);
                     //the call is made in the background, the second requests
                     //may not wait for the first one to finish
                     requestQueue.add(upcomingMoviesRequest);
                 }), error -> {
 
         });
-
-
         requestQueue.add(popularMoviesRequest);
 
     }

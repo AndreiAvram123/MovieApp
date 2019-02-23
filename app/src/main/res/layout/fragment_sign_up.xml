@@ -64,7 +64,7 @@
 
     <Button
 
-        android:id="@+id/next_button_sign_up"
+        android:id="@+id/finish_sign_up"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -72,8 +72,8 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:background="@drawable/ripple"
-        android:text="@string/next_button"
         android:textColor="#ffffff"
+        android:text="@string/finish"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -206,10 +206,10 @@
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/next_button_sign_up"
-        app:layout_constraintEnd_toEndOf="@+id/next_button_sign_up"
-        app:layout_constraintStart_toStartOf="@+id/next_button_sign_up"
-        app:layout_constraintTop_toTopOf="@+id/next_button_sign_up" />
+        app:layout_constraintBottom_toBottomOf="@+id/finish_sign_up"
+        app:layout_constraintEnd_toEndOf="@+id/finish_sign_up"
+        app:layout_constraintStart_toStartOf="@+id/finish_sign_up"
+        app:layout_constraintTop_toTopOf="@+id/finish_sign_up" />
 
     <ImageView
         android:id="@+id/back_button_sign_up"

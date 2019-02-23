@@ -36,8 +36,7 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
         </activity>
-        <activity android:name=".activities.activities.SignUpActivity" />
-        <activity android:name=".activities.activities.LoginActivity">
+        <activity android:name=".activities.activities.StartScreenActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

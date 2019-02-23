@@ -3,6 +3,7 @@ package com.example.movieapp.activities.activities;
 import android.arch.persistence.room.Room;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -11,7 +12,7 @@ import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.AppDatabase;
 import com.example.movieapp.activities.Model.Constraints;
 import com.example.movieapp.activities.Model.Movie;
-import com.example.movieapp.activities.Model.Useful;
+import com.example.movieapp.activities.Model.Utilities;
 import com.example.movieapp.activities.interfaces.DatabaseInterface;
 import com.squareup.picasso.Picasso;
 
@@ -59,11 +60,17 @@ public class MovieExpandedActivity extends AppCompatActivity {
         loadRating();
         loadImage();
 
-        Useful.makeActivityFullscreen(getWindow());
+
 
         checkMovieInDatabase();
 
         configureImageListener();
+    }
+
+    private  void  makeActivityFullscreen(){
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
     }
 
     private void checkMovieInDatabase() {
