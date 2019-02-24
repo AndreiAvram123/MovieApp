@@ -151,8 +151,9 @@ public class LoginFragment extends Fragment {
     private boolean areLoginDetailsValid(String email, String password) {
         if (!Utilities.isEmailValid(email)) {
             displayErrorMessage("Please enter a valid email");
+            return false;
         }
-        if (!password.isEmpty() && password.length() >= 6) {
+        if (password.isEmpty() || password.length() < 6) {
             displayErrorMessage("Please enter a password");
             return false;
         }

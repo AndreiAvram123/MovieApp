@@ -2,42 +2,49 @@ package com.example.movieapp.activities.activities;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.movieapp.R;
-import com.example.movieapp.activities.Model.Constraints;
 import com.example.movieapp.activities.Model.CustomDialog;
 import com.example.movieapp.activities.Model.Utilities;
 import com.example.movieapp.activities.fragments.EditProfileFragment;
-import com.example.movieapp.activities.fragments.UpdateCredentialFragment;
+import com.example.movieapp.activities.fragments.ChangeDetailFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class EditProfileActivity extends AppCompatActivity implements EditProfileFragment.EditProfileFragmentInterface,
-        UpdateCredentialFragment.UpdateCredentialFragmentInterface , CustomDialog.CustomDialogInterface {
+        ChangeDetailFragment.UpdateCredentialFragmentInterface , CustomDialog.CustomDialogInterface {
 
-    private static final String KEY_UPDATE_CREDENTIAL_FRAGMENT = "KEY_UPDATE_CREDENTIAL_FRAGMENT";
-    private EditProfileFragment editProfileFragment;
     private FragmentManager fragmentManager;
-    private FragmentTransaction fragmentTransaction;
     private FirebaseUser firebaseUser;
     private  CustomDialog customDialog;
-    public static final String KEY_EDIT_PROFILE_FRAGMENT ="EDIT_PROFILE_FRAGMENT";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
-         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+         if(Utilities.isNetworkAvailable(this)) {
+             firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+             initializeUI();
+             makeActivityFullscreen();
+         }else {
+             initializeViewsForOfflineMode();
 
+         }
 
+    }
 
-         initializeUI();
-         makeActivityFullscreen();
-
+    private void initializeViewsForOfflineMode() {
+        TextView noInternetMessage  = findViewById(R.id.error_message_edit_profile);
+        noInternetMessage.setVisibility(View.VISIBLE);
+        ImageView backImage = findViewById(R.id.back_image_edit_profile);
+        backImage.setOnClickListener(image -> finish());
     }
 
 
@@ -50,7 +57,7 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
     private void showErrorDialog() {
          customDialog = new CustomDialog(this,
                         getString(R.string.operation_unsuccessful),this);
-
+         customDialog.setButton1Message("OK");
          customDialog.show();
     }
 
@@ -59,25 +66,22 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
 
     public void initializeUI(){
         fragmentManager = getSupportFragmentManager();
-        editProfileFragment = new EditProfileFragment();
-        fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.frameLayout_edit_profile,editProfileFragment,KEY_EDIT_PROFILE_FRAGMENT);
-        fragmentTransaction.commit();
+        fragmentManager.beginTransaction()
+                        .replace(R.id.fragment_placeholder_edit_profile,EditProfileFragment.newInstance())
+                        .commit();
+
 
     }
-    private void showUpdateCredentialFragment(String credential) {
-         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.frameLayout_edit_profile,UpdateCredentialFragment.newInstance(credential),
-                KEY_UPDATE_CREDENTIAL_FRAGMENT);
-        fragmentTransaction.addToBackStack(null);
-         fragmentTransaction.commit();
+    private void showChangeDetailFragment(String credential) {
+         fragmentManager.beginTransaction()
+                        .replace(R.id.fragment_placeholder_edit_profile,
+                                ChangeDetailFragment.newInstance(credential))
+                        .addToBackStack(null)
+                        .commit();
+
     }
 
-    private void goBackToViewPagerFragment() {
-        fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.frameLayout_edit_profile,editProfileFragment,KEY_EDIT_PROFILE_FRAGMENT);
-        fragmentTransaction.commit();
-    }
+
 
     /**
      * Display a message dialog informing
@@ -87,33 +91,30 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
     private void showMessageDialog() {
         customDialog = new CustomDialog(this,
                 getString(R.string.operation_successful),this);
+        customDialog.setButton1Message("OK");
         customDialog.show();
     }
     /**
      * ---------------------------------------------------------------------------------------------
      *                        INTERFACE METHODS FROM FRAGMENTS
      */
-    @Override
-    public void closeFragment(){
-        goBackToViewPagerFragment();
-    }
 
 
     @Override
     public void changeEmail() {
-         showUpdateCredentialFragment(Constraints.KEY_EMAIL_CREDENTIAL);
+         showChangeDetailFragment(ChangeDetailFragment.KEY_EMAIL);
     }
 
 
     @Override
     public void changePassword() {
-        showUpdateCredentialFragment(Constraints.KEY_PASSWORD_CREDENTIAL);
+        showChangeDetailFragment(ChangeDetailFragment.KEY_PASSWORD);
     }
 
 
     @Override
     public void changeNickname() {
-       showUpdateCredentialFragment(Constraints.KEY_NICKNAME_CREDENTIAL);
+       showChangeDetailFragment(ChangeDetailFragment.KEY_NICKNAME);
 
     }
 
@@ -137,7 +138,7 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
         firebaseUser.updateEmail(newEmail).addOnCompleteListener(task ->{
             if(task.isSuccessful()){
                 showMessageDialog();
-                goBackToViewPagerFragment();
+                getSupportFragmentManager().popBackStack();
             }else {
                 showErrorDialog();
             }
@@ -159,7 +160,7 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
         firebaseUser.updatePassword(newPassword).addOnCompleteListener(task->{
             if(task.isSuccessful()){
                 showMessageDialog();
-                goBackToViewPagerFragment();
+                getSupportFragmentManager().popBackStack();
             }else {
                 showErrorDialog();
             }
@@ -189,7 +190,7 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
                 .build()).addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 showMessageDialog();
-                goBackToViewPagerFragment();
+                getSupportFragmentManager().popBackStack();
             }else {
                 showErrorDialog();
             }

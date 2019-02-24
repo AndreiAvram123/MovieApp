@@ -1,7 +1,7 @@
 package com.example.movieapp.activities.adapters;
 
+import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,9 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.movieapp.R;
-import com.example.movieapp.activities.Model.Constraints;
 import com.example.movieapp.activities.Model.Movie;
-import com.example.movieapp.activities.activities.MovieExpandedActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -29,21 +27,21 @@ public class MainAdapter extends RecyclerView.Adapter {
     private final int VIEW_TYPE_ITEM = 1;
     private int VIEW_TYPE_LOADING = 0;
     private Context context;
-    //the default number of items to load after the current list
-    //has been shown
+    private AdapterInterface adapterInterface;
     private int numberOfItemsToLoadOnRequest = 6;
     private int numberOfItemsToLoadFirst = 6;
 
 
     /**
      * Use this constructor if you want the adapter to load more
-     * items.IMPLEMENT THE
+     * items on scroll
      * @param recyclerView
     */
-
-     public MainAdapter(RecyclerView recyclerView,ArrayList<Movie>movies)
+     public MainAdapter(RecyclerView recyclerView, ArrayList<Movie>movies, Activity activity)
     {   this.movies = movies;
+
          currentLoadedMovies = new ArrayList<>();
+         adapterInterface = (AdapterInterface) activity;
         //set the initial movies
         for(int i =0;i< numberOfItemsToLoadFirst && i <movies.size();i++)
             currentLoadedMovies.add(movies.get(i));
@@ -131,8 +129,6 @@ public class MainAdapter extends RecyclerView.Adapter {
     }
     @NonNull
     @Override
-    //we get the viewType when we override the method
-    //see below
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         this.context = viewGroup.getContext();
         if( viewType== VIEW_TYPE_ITEM) {
@@ -184,7 +180,7 @@ public class MainAdapter extends RecyclerView.Adapter {
                       .into(itemViewHolder.poster_image);
 
                //expand the current selected movie
-              itemViewHolder.layout.setOnClickListener(view -> startMovieExpandedActivity(position));
+              itemViewHolder.layout.setOnClickListener(view -> adapterInterface.onItemClicked(currentLoadedMovies.get(position)));
 
           }else {
 
@@ -195,11 +191,7 @@ public class MainAdapter extends RecyclerView.Adapter {
           }
     }
 
-    private void startMovieExpandedActivity(int position) {
-        Intent startExtendedMovieActivityIntent = new Intent(context, MovieExpandedActivity.class);
-        startExtendedMovieActivityIntent.putExtra(Constraints.KEY_MOVIE,currentLoadedMovies.get(position));
-        context.startActivity(startExtendedMovieActivityIntent);
-    }
+
 
     @Override
     public int getItemCount() {
@@ -236,6 +228,12 @@ public class MainAdapter extends RecyclerView.Adapter {
 
 
         }
+    }
+
+
+    public interface AdapterInterface {
+
+        void onItemClicked(Movie movie);
     }
 
 

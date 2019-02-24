@@ -66,7 +66,6 @@ public class StartScreenActivity extends AppCompatActivity implements CustomDial
      * show the signUpFragment
      */
     private void displaySignUpFragment() {
-
         fragmentManager.beginTransaction()
                 .replace(R.id.start_screen_placeholder, signUpFragment)
                 .addToBackStack(null)
@@ -95,7 +94,7 @@ public class StartScreenActivity extends AppCompatActivity implements CustomDial
         customDialog = new CustomDialog(this, getString(R.string.email_verification_sent), this);
         customDialog.setButton1Message("ALRIGHT");
         customDialog.enableNegativeButton();
-        customDialog.setButton2Message(getString(R.string.resend_verication_email));
+        customDialog.setButton2Message(getString(R.string.resend_verification_email));
         customDialog.show();
     }
 

@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 
 import com.example.movieapp.R;
-import com.example.movieapp.activities.Model.Constraints;
 import com.example.movieapp.activities.fragments.SettingsFragment;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -14,6 +13,7 @@ public class SettingsActivity extends AppCompatActivity
 implements SettingsFragment.SettingsFragmentInterface{
 
 
+    public static final String KEY_NICKNAME = "KEY_NICKNAME";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +21,7 @@ implements SettingsFragment.SettingsFragmentInterface{
         setContentView(R.layout.activity_settings);
 
 
-        showSettingsFragment(getIntent().getStringExtra(Constraints.KEY_NICKNAME_SETTINGS));
+        showSettingsFragment(getIntent().getStringExtra(KEY_NICKNAME));
 
         ImageView backButton = findViewById(R.id.back_button_settings);
         backButton.setOnClickListener(button -> finish());
@@ -29,7 +29,6 @@ implements SettingsFragment.SettingsFragmentInterface{
     }
 
     private void showSettingsFragment(String nickname) {
-
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.frameLayout_settings,SettingsFragment.newInstance(nickname))

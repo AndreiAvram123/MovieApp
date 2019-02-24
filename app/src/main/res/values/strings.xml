@@ -6,8 +6,6 @@
     <string name="resend_verification_button">RESEND VERIFICATION EMAIL</string>
     <string name="email_verification_sent">We have sent a verification email. Follow the instructions inside the email.</string>
     <string name="next_button">NEXT</string>
-    <string name="no">NO</string>
-    <string name="ok">OK</string>
     <string name="empty_password">Please enter a password</string>
     <string name="create_account_hint">CREATE AN ACCOUNT</string>
     <string name="password">PASSWORD</string>
@@ -16,7 +14,6 @@
     <string name="reenter_password">ENTER YOU PASSWORD AGAIN</string>
     <string name="password_match">PASSWORDS MUST MATCH</string>
     <string name="no_password">PLEASE ENTER A PASSWORD</string>
-    <string name="api_key">55398af9b60eda4997b848dd5ccf7d44</string>
     <string name="new_releases">NEW RELEASES</string>
     <string name="profile_created">We have created your profile</string>
     <string name="error_create_account">Error..We were unable to create an account</string>
@@ -46,11 +43,13 @@
     <string name="no_movies_saved">THERE ARE NO SAVED MOVIES</string>
     <string name="no_internet_connection">No internet connection ...Please connect and come back.</string>
     <string name="please_connect">There is no internet connection.Connect in order to use all the features.</string>
-    <string name="resend_verication_email">Resend email</string>
+    <string name="resend_verification_email">Resend email</string>
     <string name="settings">Settings</string>
     <string name="edit_profile">Edit profile</string>
     <string name="sign_out_setting">sign_out_setting</string>
     <string name="enter_nickname">ENTER NICKNAME</string>
     <string name="cancel">CANCEL</string>
     <string name="sign_up">SIGN UP</string>
+    <string name="movie_removed">Movie removed from library</string>
+    <string name="movie_added">Movie added to library</string>
 </resources>

@@ -41,7 +41,7 @@ public class BaseFragment extends Fragment {
         View view = inflater.inflate(R.layout.layout_base_fragment,container,false);
         movies = getArguments().getParcelableArrayList(KEY_MOVIES_ARRAY);
         recyclerView = view.findViewById(R.id.recycler_view_base_fragment);
-        mainAdapter = new MainAdapter(recyclerView,movies);
+        mainAdapter = new MainAdapter(recyclerView,movies,getActivity());
 
         initializeRecyclerView(container.getContext());
         return view;

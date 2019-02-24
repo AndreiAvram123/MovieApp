@@ -18,6 +18,18 @@ import java.util.ArrayList;
 public class Utilities {
 
     /**
+     * This method is used to check weather or not there
+     * is internet connection available in the given context
+     */
+    public static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
+
+    }
+
+
+    /**
      * This method uses a regex with the matches() method in
      * order to determine if the email address is valid or
      * not
@@ -38,11 +50,16 @@ public class Utilities {
     public static String reverseDate(String date) {
 
         String[] strings = date.split("-");
-        /* strings[0] = yyyy
+        if(strings.length <3){
+            return "UNKNOWN";
+        }else {
+            /* strings[0] = yyyy
            strings[1] = mm
            strings[2] = dd
-         */
-        return strings[2] + "/" + strings[1] + "/" + strings[0];
+            */
+            return strings[2] + "/" + strings[1] + "/" + strings[0];
+        }
+
 
     }
 
@@ -54,14 +71,17 @@ public class Utilities {
         StringBuilder stringBuilder = new StringBuilder();
 
         JSONArray genresArrayJson = currentMovieJSONFormat.getJSONArray("genre_ids");
-
-        for (int i = 0; i < genresArrayJson.length(); i++) {
-            String genre = Constraints.getGenre(genresArrayJson.getInt(i));
-            stringBuilder.append(genre + ",");
+        if(genresArrayJson.length()==0){
+            return "UNKNOWN";
+        }else {
+            for (int i = 0; i < genresArrayJson.length(); i++) {
+                String genre = getGenre(genresArrayJson.getInt(i));
+                stringBuilder.append(genre).append(",");
+            }
+            //remove comma after the last genre
+            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+            return stringBuilder.toString();
         }
-        //remove comma after the last genre
-        stringBuilder.deleteCharAt(stringBuilder.length() - 1);
-        return stringBuilder.toString();
     }
 
     /**
@@ -78,7 +98,7 @@ public class Utilities {
             JSONArray results = requestObject.getJSONArray("results");
 
 
-            for (int i = 0; i < response.length(); i++) {
+            for (int i = 0; i < results.length(); i++) {
                 JSONObject currentMovieJSONFormat = results.getJSONObject(i);
                 Movie currentMovie = new Movie(
                         currentMovieJSONFormat.getString("overview"),
@@ -99,5 +119,45 @@ public class Utilities {
         return movies;
     }
 
-
+    public static String getGenre(int genreID) {
+        switch (genreID) {
+            case 28:
+                return "Action";
+            case 12:
+                return "Adventure";
+            case 16:
+                return "Animation";
+            case 35:
+                return "Comedy";
+            case 80:
+                return "Crime";
+            case 99:
+                return "Documentary";
+            case 18:
+                return "Drama";
+            case 10751:
+                return "Family";
+            case 14:
+                return "Fantasy";
+            case 36:
+                return "History";
+            case 27:
+                return "Horror";
+            case 10402:
+                return "Music";
+            case 9648:
+                return "Mystery";
+            case 10749:
+                return "Romance";
+            case 878:
+                return "Science Fiction";
+            case 10770:
+                return "Tv Movie";
+            case 53:
+                return "Thriller";
+            case 37:
+                return "Western";
+            default: return "";
+        }
+    }
 }

@@ -16,7 +16,7 @@ public interface DatabaseInterface {
   void insertMovie(Movie movie);
 
   @Query("SELECT * FROM movies")
-  List<Movie> selectAllMovies();
+  List<Movie> getAllMovies();
 
 
     /**

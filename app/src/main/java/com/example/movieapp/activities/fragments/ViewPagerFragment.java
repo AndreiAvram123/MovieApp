@@ -9,19 +9,21 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseExpandableListAdapter;
+import android.widget.TextView;
 
 import com.example.movieapp.R;
-import com.example.movieapp.activities.Model.Constraints;
 import com.example.movieapp.activities.Model.Movie;
 
 import java.util.ArrayList;
 
 public class ViewPagerFragment extends Fragment {
 
+    public static final String KEY_UPCOMING_MOVIES_ARRAY="KEY_UPCOMING_MOVIES_ARRAY";
+    public static final String KEY_POPULAR_MOVIES_ARRAY="KEY_UPCOMING_MOVIES_ARRAY";
     private ViewPager viewPager;
-    public BaseFragment popularMoviesFragment;
-    public  BaseFragment upcomingMoviesFragment;
+    private BaseFragment popularMoviesFragment;
+    private BaseFragment upcomingMoviesFragment;
+
 
     /**
      *  YOU NEED TO PUT THE ARRAYS INTO A BUNDLE
@@ -34,8 +36,8 @@ public class ViewPagerFragment extends Fragment {
      */
     public static ViewPagerFragment newInstance(ArrayList<Movie> upcomingMovies,ArrayList<Movie> popularMovies){
         Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList(Constraints.KEY_POPULAR_MOVIES_ARRAY,popularMovies);
-        bundle.putParcelableArrayList(Constraints.KEY_UPCOMING_MOVIES_ARRAY,upcomingMovies);
+        bundle.putParcelableArrayList(KEY_POPULAR_MOVIES_ARRAY,popularMovies);
+        bundle.putParcelableArrayList(KEY_UPCOMING_MOVIES_ARRAY,upcomingMovies);
         ViewPagerFragment viewPagerFragment = new ViewPagerFragment();
         viewPagerFragment.setArguments(bundle);
         return viewPagerFragment;
@@ -45,12 +47,24 @@ public class ViewPagerFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.layout_view_pager_fragment,container,false);
-        viewPager = view.findViewById(R.id.viewPager);
-        ArrayList<Movie> upcomingMovies = getArguments().getParcelableArrayList(Constraints.KEY_UPCOMING_MOVIES_ARRAY);
-        ArrayList<Movie> popularMovies = getArguments().getParcelableArrayList(Constraints.KEY_POPULAR_MOVIES_ARRAY);
-        popularMoviesFragment = BaseFragment.newInstance(popularMovies);
-        upcomingMoviesFragment = BaseFragment.newInstance(upcomingMovies);
+        View layout = inflater.inflate(R.layout.view_pager_fragment,container,false);
+
+        ArrayList<Movie> upcomingMovies = getArguments().getParcelableArrayList(KEY_UPCOMING_MOVIES_ARRAY);
+        ArrayList<Movie> popularMovies = getArguments().getParcelableArrayList(KEY_POPULAR_MOVIES_ARRAY);
+
+        if(upcomingMovies!=null && popularMovies!=null){
+            popularMoviesFragment = BaseFragment.newInstance(popularMovies);
+            upcomingMoviesFragment = BaseFragment.newInstance(upcomingMovies);
+            viewPager = layout.findViewById(R.id.viewPager);
+            initializeViewPager();
+        }else {
+            TextView noInternetMessage = layout.findViewById(R.id.error_text_view_pager);
+            noInternetMessage.setVisibility(View.VISIBLE);
+        }
+        return layout;
+    }
+
+    private void initializeViewPager() {
         viewPager.setAdapter(new FragmentPagerAdapter(getChildFragmentManager()) {
 
             @Override
@@ -77,6 +91,5 @@ public class ViewPagerFragment extends Fragment {
                 }
             }
         });
-        return view;
     }
 }
