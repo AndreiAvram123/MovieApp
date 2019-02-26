@@ -5,7 +5,7 @@ import android.arch.persistence.room.RoomDatabase;
 
 import com.example.movieapp.activities.interfaces.DatabaseInterface;
 
-@Database(entities = {Movie.class},version = 1,exportSchema = false)
+@Database(entities = {Movie.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract DatabaseInterface databaseInterface();
 }

@@ -18,7 +18,7 @@ import com.squareup.picasso.Picasso;
 
 public class ExpandedMovieFragment extends Fragment {
 
-    private static final String KEY_MOVIE ="KEY_MOVIE";
+    private static final String KEY_MOVIE = "KEY_MOVIE";
     private LinearLayout linearLayoutStars;
     private TextView title;
     private Movie movie;
@@ -30,9 +30,9 @@ public class ExpandedMovieFragment extends Fragment {
     private ExpandedMovieFragmentInterface expandedMovieFragmentInterface;
     private View layout;
 
-    public static ExpandedMovieFragment newInstance(Movie movie){
+    public static ExpandedMovieFragment newInstance(Movie movie) {
         Bundle bundle = new Bundle();
-        bundle.putParcelable(KEY_MOVIE,movie);
+        bundle.putParcelable(KEY_MOVIE, movie);
         ExpandedMovieFragment expandedMovieFragment = new ExpandedMovieFragment();
         expandedMovieFragment.setArguments(bundle);
         return expandedMovieFragment;
@@ -42,17 +42,17 @@ public class ExpandedMovieFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-       layout = inflater.inflate(R.layout.fragment_movie_expanded,container,false);
+        layout = inflater.inflate(R.layout.fragment_movie_expanded, container, false);
 
         initializeUI();
 
         movie = getArguments().getParcelable(KEY_MOVIE);
 
-        if(movie!=null){
+        if (movie != null) {
             updateUI();
         }
 
-       return layout;
+        return layout;
     }
 
     private void initializeUI() {
@@ -77,6 +77,7 @@ public class ExpandedMovieFragment extends Fragment {
         genres = layout.findViewById(R.id.genre_movie_expanded);
 
     }
+
     private void updateUI() {
         title.setText(movie.getTitle());
         releaseDate.setText(movie.getReleaseDate());
@@ -89,9 +90,9 @@ public class ExpandedMovieFragment extends Fragment {
     }
 
     private void configureSaveImage() {
-        if(movie.isSaved()){
+        if (movie.isSaved()) {
             saveMovieImage.setImageResource(R.drawable.ic_favorite_yellow_30dp);
-        }else {
+        } else {
             saveMovieImage.setImageResource(R.drawable.ic_favorite_border_white_30dp);
         }
     }
@@ -109,31 +110,31 @@ public class ExpandedMovieFragment extends Fragment {
     }
 
 
-
     //TODO
     //explain method and refactor
     private void loadRating() {
-        int position =0;
-        while(position < (int)movie.getRating()){
+        int position = 0;
+        while (position < (int) movie.getRating()) {
             ImageView star = (ImageView) linearLayoutStars.getChildAt(position);
             star.setImageResource(R.drawable.ic_star_yellow_24dp);
             position++;
         }
         position--;
-        if(movie.getRating() != (int)movie.getRating()) {
+        if (movie.getRating() != (int) movie.getRating()) {
             ImageView star = (ImageView) linearLayoutStars.getChildAt(position);
             star.setImageResource(R.drawable.ic_star_half_yellow_24dp);
         }
 
     }
+
     private void configureImageListener() {
-        saveMovieImage.setOnClickListener(view ->{
-            if(movie.isSaved()){
+        saveMovieImage.setOnClickListener(view -> {
+            if (movie.isSaved()) {
                 expandedMovieFragmentInterface.deleteMovie(movie);
                 movie.setSaved(false);
                 saveMovieImage.setImageResource(R.drawable.ic_favorite_border_white_30dp);
                 showSnackbar(getString(R.string.movie_removed));
-            }else {
+            } else {
                 expandedMovieFragmentInterface.saveMovie(movie);
                 movie.setSaved(true);
                 saveMovieImage.setImageResource(R.drawable.ic_favorite_yellow_30dp);
@@ -143,12 +144,13 @@ public class ExpandedMovieFragment extends Fragment {
     }
 
     private void showSnackbar(String message) {
-        Snackbar snackbar = Snackbar.make(layout,message,Snackbar.LENGTH_SHORT);
+        Snackbar snackbar = Snackbar.make(layout, message, Snackbar.LENGTH_SHORT);
         snackbar.show();
     }
 
-    public interface ExpandedMovieFragmentInterface{
+    public interface ExpandedMovieFragmentInterface {
         void saveMovie(Movie movie);
+
         void deleteMovie(Movie movie);
     }
 

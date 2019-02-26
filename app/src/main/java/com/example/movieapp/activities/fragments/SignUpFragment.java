@@ -1,11 +1,8 @@
 package com.example.movieapp.activities.fragments;
 
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,24 +14,26 @@ import android.widget.TextView;
 
 import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.Utilities;
-import com.google.firebase.auth.FirebaseAuth;
 
-public class SignUpFragment extends Fragment {
+public class SignUpFragment extends AuthenticationFragment {
 
     private EditText emailField;
     private EditText passwordField;
     private EditText reenteredPasswordField;
     private EditText nicknameField;
-    private TextView errorMessage;
     private Button finishButton;
     private ProgressBar progressBar;
+    private TextView errorTextView;
     private TextView hintEmail;
     private TextView hintPassword;
     private TextView hintReenteredPassword;
     private TextView hintNickname;
+    private ImageView backImage;
     private SignUpFragmentCallback signUpFragmentCallback;
 
-    public static SignUpFragment newInstance(){
+    public static final String FRAGMENT_TAG = "FRAGMENT_TAG";
+
+    public static SignUpFragment newInstance() {
         return new SignUpFragment();
     }
 
@@ -42,9 +41,10 @@ public class SignUpFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View layout = inflater.inflate(R.layout.fragment_sign_up,container,false);
+        View layout = inflater.inflate(R.layout.fragment_sign_up, container, false);
 
         signUpFragmentCallback = (SignUpFragmentCallback) getActivity();
+
 
         initializeUI(layout);
 
@@ -52,39 +52,45 @@ public class SignUpFragment extends Fragment {
 
     }
 
-    private void initializeUI(View layout) {
-        initializeViews(layout);
-        customiseEditTexts();
-        configureBackButton(layout);
-        configureFinishButton();
+
+    @Override
+    void configureButtons() {
+        finishButton.setOnClickListener(view -> attemptAction());
+        backImage.setOnClickListener(image -> getFragmentManager().popBackStack());
     }
 
-    private void configureFinishButton() {
-        finishButton.setOnClickListener(view -> attemptSignUp());
+    @Override
+    public void displayErrorMessage(String message) {
+        errorTextView.setVisibility(View.VISIBLE);
+        errorTextView.setText(message);
     }
 
-    private void attemptSignUp() {
-        String email = emailField.getText().toString().trim();
-        String password = passwordField.getText().toString().trim();
-        String reenteredPassword = reenteredPasswordField.getText().toString().trim();
-        String nickname = nicknameField.getText().toString().trim();
-        if(areCredentialsValid(email,password,reenteredPassword,nickname)){
-            toggleLoadingBar();
-            signUpFragmentCallback.signUp(email,password,nickname);
-            clearFields();
+    /**
+     * Once the user has pressed the finishButton and
+     * the credentials are valid it may take some time
+     * until Firebase processes our SignUp request(usually this does not happen)
+     * We hide the finishButton  and show the loadingBar
+     * until Firebase has processed the request
+     * !!!!!!!!!
+     * THIS METHOD IS ALSO CALLED FROM @activity StartScreenActivity
+     * HAS BEEN PROCESSED
+     */
+    @Override
+    public void toggleLoadingBar() {
+        if (finishButton.getVisibility() == View.VISIBLE) {
+            finishButton.setVisibility(View.INVISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
+        } else {
+            finishButton.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.INVISIBLE);
         }
+        clearFields();
     }
 
-    private void customiseEditTexts() {
-        customiseEditText(emailField,hintEmail);
-        customiseEditText(passwordField,hintPassword);
-        customiseEditText(reenteredPasswordField, hintReenteredPassword);
-        customiseEditText(nicknameField,hintNickname);
-    }
 
     private void initializeViews(View layout) {
         hintEmail = layout.findViewById(R.id.hint_enter_email);
-        hintPassword= layout.findViewById(R.id.hint_enter_password);
+        hintPassword = layout.findViewById(R.id.hint_enter_password);
         hintReenteredPassword = layout.findViewById(R.id.hint_reenter_password);
         hintNickname = layout.findViewById(R.id.hint_enter_nickname);
 
@@ -94,73 +100,80 @@ public class SignUpFragment extends Fragment {
         nicknameField = layout.findViewById(R.id.nickname_field);
 
         finishButton = layout.findViewById(R.id.finish_sign_up);
-        errorMessage = layout.findViewById(R.id.error_message_sign_up);
         progressBar = layout.findViewById(R.id.loading_progress_bar_sign_up);
+        errorTextView = layout.findViewById(R.id.error_message_sign_up);
+        backImage = layout.findViewById(R.id.back_image_sign_up);
+
+        configureButtons();
 
     }
 
-    private void customiseEditText(EditText editText ,TextView hint) {
-        editText.setOnFocusChangeListener((v, hasFocus) -> {
-            if(hasFocus){
-                editText.getBackground()
-                        .mutate().setColorFilter(Color.parseColor("#76B900"), PorterDuff.Mode.SRC_ATOP);
-                hint.setTextColor(Color.parseColor("#A5B253"));
-            }else {
-                editText.getBackground()
-                        .mutate().setColorFilter(Color.parseColor("#ffffff"),PorterDuff.Mode.SRC_ATOP);
-                hint.setTextColor(Color.parseColor("#ffffff"));
-            }
-        });
-    }
-
-    private void configureBackButton(View layout) {
-        ImageView backButton = layout.findViewById(R.id.back_button_sign_up);
-        backButton.setOnClickListener(view -> getFragmentManager().popBackStack());
-    }
 
     private boolean areCredentialsValid(String email, String password, String reenteredPassword,
                                         String nickname) {
 
-        if(!Utilities.isEmailValid(email)){
+        if (!Utilities.isEmailValid(email)) {
             displayErrorMessage(getString(R.string.error_invalid_email));
             return false;
         }
-        if(password.isEmpty()){
+        if (password.isEmpty()) {
             displayErrorMessage(getString(R.string.no_password));
             return false;
         }
-        if(!password.equals(reenteredPassword)){
+        if (!password.equals(reenteredPassword)) {
             displayErrorMessage(getString(R.string.password_match));
             return false;
         }
-        if(nickname.isEmpty()){
+        if (nickname.isEmpty()) {
             displayErrorMessage(getString(R.string.error_no_nickname));
         }
         return true;
 
     }
 
-    private void displayErrorMessage(String message) {
-        errorMessage.setVisibility(View.VISIBLE);
-        errorMessage.setText(message);
-        clearFields();
+
+    /**
+     * ACTION - SIGN UP
+     */
+    @Override
+    void attemptAction() {
+        String email = emailField.getText().toString().trim();
+        String password = passwordField.getText().toString().trim();
+        String reenteredPassword = reenteredPasswordField.getText().toString().trim();
+        String nickname = nicknameField.getText().toString().trim();
+
+        if (areCredentialsValid(email, password, reenteredPassword, nickname)) {
+            toggleLoadingBar();
+            signUpFragmentCallback.signUp(email, password, nickname);
+
+        }
     }
-    private void clearFields() {
+
+    @Override
+    void clearFields() {
         emailField.setText("");
         passwordField.setText("");
         reenteredPasswordField.setText("");
+        nicknameField.setText("");
     }
 
-    private void toggleLoadingBar() {
-        if(finishButton.getVisibility() == View.VISIBLE){
-            finishButton.setVisibility(View.INVISIBLE);
-            progressBar.setVisibility(View.VISIBLE);
-        }else {
-            finishButton.setVisibility(View.VISIBLE);
-            progressBar.setVisibility(View.INVISIBLE);
-        }
+    @Override
+    void initializeUI(View layout) {
+        initializeViews(layout);
+        customiseFields();
+        configureButtons();
     }
-    public interface SignUpFragmentCallback{
-        void signUp(String email,String password,String nickname);
+
+    @Override
+    void customiseFields() {
+        customiseField(emailField, hintEmail);
+        customiseField(passwordField, hintPassword);
+        customiseField(reenteredPasswordField, hintReenteredPassword);
+        customiseField(nicknameField, hintNickname);
     }
+
+    public interface SignUpFragmentCallback {
+        void signUp(String email, String password, String nickname);
+    }
+
 }

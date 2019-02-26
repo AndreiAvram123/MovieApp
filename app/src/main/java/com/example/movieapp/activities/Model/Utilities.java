@@ -50,9 +50,9 @@ public class Utilities {
     public static String reverseDate(String date) {
 
         String[] strings = date.split("-");
-        if(strings.length <3){
+        if (strings.length < 3) {
             return "UNKNOWN";
-        }else {
+        } else {
             /* strings[0] = yyyy
            strings[1] = mm
            strings[2] = dd
@@ -71,9 +71,9 @@ public class Utilities {
         StringBuilder stringBuilder = new StringBuilder();
 
         JSONArray genresArrayJson = currentMovieJSONFormat.getJSONArray("genre_ids");
-        if(genresArrayJson.length()==0){
+        if (genresArrayJson.length() == 0) {
             return "UNKNOWN";
-        }else {
+        } else {
             for (int i = 0; i < genresArrayJson.length(); i++) {
                 String genre = getGenre(genresArrayJson.getInt(i));
                 stringBuilder.append(genre).append(",");
@@ -157,7 +157,8 @@ public class Utilities {
                 return "Thriller";
             case 37:
                 return "Western";
-            default: return "";
+            default:
+                return "";
         }
     }
 }

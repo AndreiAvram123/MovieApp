@@ -2,10 +2,7 @@ package com.example.movieapp.activities.activities;
 
 import android.app.SearchManager;
 import android.arch.persistence.room.Room;
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -41,10 +38,10 @@ public class SearchableActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_searchable);
+        setContentView(R.layout.fragment_search);
 
         makeActivityFullscreen();
-        initializeUI();
+
 
         if (Utilities.isNetworkAvailable(this)) {
             initializeDatabase();
@@ -58,13 +55,14 @@ public class SearchableActivity extends AppCompatActivity
             }
         } else {
             no_results_error.setVisibility(View.VISIBLE);
-            no_results_error.setText(R.string.no_internet_connection);
+            no_results_error.setText(
+                    R.string.no_internet_connection);
         }
 
     }
 
     private void initializeUI() {
-        recyclerView = findViewById(R.id.recycler_view_search_activity);
+        recyclerView = findViewById(R.id.recycler_view_search);
         no_results_error = findViewById(R.id.error_message_search);
         ImageView back_image = findViewById(R.id.back_image_seach);
         back_image.setOnClickListener(view -> finish());
@@ -84,15 +82,13 @@ public class SearchableActivity extends AppCompatActivity
         backgroundThread.start();
     }
 
-    private void deleteMovieFromDatabase(Movie movie){
+    private void deleteMovieFromDatabase(Movie movie) {
 
         savedMovies.remove(movie);
-        Thread backgroundThread = new Thread(()->
+        Thread backgroundThread = new Thread(() ->
                 databaseInterface.deleteMovieById(movie.getMovieID()));
         backgroundThread.start();
     }
-
-
 
 
     /**
@@ -119,13 +115,11 @@ public class SearchableActivity extends AppCompatActivity
 
     private void pushRequest(String uri) {
         RequestQueue requestQueue = Volley.newRequestQueue(this);
-
         StringRequest dataRequest = new StringRequest(StringRequest.Method.GET, uri,
                 response -> runOnUiThread(() -> updateUI(response)),
                 error -> {
 
                 });
-
         requestQueue.add(dataRequest);
     }
 
@@ -142,8 +136,7 @@ public class SearchableActivity extends AppCompatActivity
     }
 
     private void createRecyclerView(ArrayList<Movie> searchedMovies) {
-        MainAdapter mainAdapter = new MainAdapter(recyclerView, searchedMovies, this);
-        recyclerView.setAdapter(mainAdapter);
+        recyclerView.setAdapter(new MainAdapter(recyclerView, searchedMovies, this));
         recyclerView.setHasFixedSize(true);
         recyclerView.addItemDecoration(new CustomDivider(20));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

@@ -10,7 +10,7 @@ import com.example.movieapp.activities.fragments.SettingsFragment;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class SettingsActivity extends AppCompatActivity
-implements SettingsFragment.SettingsFragmentInterface{
+        implements SettingsFragment.SettingsFragmentInterface {
 
 
     public static final String KEY_NICKNAME = "KEY_NICKNAME";
@@ -31,15 +31,15 @@ implements SettingsFragment.SettingsFragmentInterface{
     private void showSettingsFragment(String nickname) {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.frameLayout_settings,SettingsFragment.newInstance(nickname))
+                .replace(R.id.frameLayout_settings, SettingsFragment.newInstance(nickname))
                 .commit();
     }
 
     @Override
     public void signOut() {
-      FirebaseAuth.getInstance().signOut();
-      startLogInActivity();
-      finish();
+        FirebaseAuth.getInstance().signOut();
+        startLogInActivity();
+        finish();
     }
 
     private void startLogInActivity() {

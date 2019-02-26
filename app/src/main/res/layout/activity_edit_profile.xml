@@ -5,9 +5,8 @@
     android:id="@+id/fragment_placeholder_edit_profile"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.activities.EditProfileActivity"
     android:background="@drawable/background_gradient"
-    >
+    tools:context=".activities.activities.EditProfileActivity">
 
     <ImageView
         android:id="@+id/back_image_edit_profile"

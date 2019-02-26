@@ -56,4 +56,29 @@ public class GridAdapter extends BaseAdapter {
         return view;
     }
 
+    /**
+     * Use this method to add an item
+     * to the list
+     * @param movie
+     */
+    public void addMovie(Movie movie){
+            savedMovies.add(movie);
+            notifyDataSetChanged();
+    }
+
+    /**
+     * Use this method to delete
+     * a movie from the list
+     * @param movie
+     */
+    public void removeMovie(Movie movie) {
+
+        savedMovies.remove(movie);
+        notifyDataSetChanged();
+    }
+
+
+    public boolean isListEmpty() {
+        return savedMovies.isEmpty();
+    }
 }

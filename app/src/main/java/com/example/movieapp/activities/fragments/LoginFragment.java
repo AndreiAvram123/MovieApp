@@ -1,11 +1,8 @@
 package com.example.movieapp.activities.fragments;
 
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +14,7 @@ import android.widget.TextView;
 import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.Utilities;
 
-public class LoginFragment extends Fragment {
+public class LoginFragment extends AuthenticationFragment {
 
     private TextView emailHint;
     private TextView passwordHint;
@@ -27,7 +24,7 @@ public class LoginFragment extends Fragment {
     private ProgressBar loadingBar;
     private Button signInButton;
     private Button signUpButton;
-    private LoginFragmentCallBack loginFragmentCallBack;
+    private LoginFragmentCallback loginFragmentCallback;
 
     public static LoginFragment newInstance() {
         return new LoginFragment();
@@ -37,18 +34,55 @@ public class LoginFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_login, container, false);
-        loginFragmentCallBack = (LoginFragmentCallBack) getActivity();
+        loginFragmentCallback = (LoginFragmentCallback) getActivity();
         initializeUI(layout);
         return layout;
     }
 
 
-    private void initializeUI(View layout) {
+    /**
+     * ACTION - LOGIN
+     * This method gets the text from the emailField and the
+     * passwordField and then calls the method areLoginDetailsValid()
+     * if the method called return true then call loginFragmentCallback.loginUser()
+     */
+
+    @Override
+    void attemptAction() {
+        String email = emailField.getText().toString().trim();
+        String password = passwordField.getText().toString().trim();
+        if (areLoginDetailsValid(email, password)) {
+            toggleLoadingBar();
+            loginFragmentCallback.login(email, password);
+        }
+    }
+
+    @Override
+    void clearFields() {
+        emailField.setText("");
+        passwordField.setText("");
+    }
+
+    @Override
+    void initializeUI(View layout) {
         initializeViews(layout);
-        customiseEditTexts();
-        attachListeners();
+        customiseFields();
+        configureButtons();
 
     }
+
+    @Override
+    void customiseFields() {
+        customiseField(emailField, emailHint);
+        customiseField(passwordField, passwordHint);
+    }
+
+    @Override
+    void configureButtons() {
+        signUpButton.setOnClickListener(view -> loginFragmentCallback.showSignUpFragment());
+        signInButton.setOnClickListener(view -> attemptAction());
+    }
+
 
     private void initializeViews(View layout) {
         emailHint = layout.findViewById(R.id.email_hint_login);
@@ -61,35 +95,6 @@ public class LoginFragment extends Fragment {
         signUpButton = layout.findViewById(R.id.sign_up_button);
     }
 
-    /**
-     * This method calls the customiseEditText()
-     * for the every EditText with its corresponding
-     * TextView
-     */
-    private void customiseEditTexts() {
-        customiseEditText(emailField, emailHint);
-        customiseEditText(passwordField, passwordHint);
-
-    }
-
-    private void attachListeners() {
-        signUpButton.setOnClickListener(view -> loginFragmentCallBack.showSignUpFragment());
-        signInButton.setOnClickListener(view -> attemptSignIn());
-    }
-
-    /**
-     * This method gets the text from the emailField and the
-     * passwordField and then calls the method areLoginDetailsValid()
-     * if the method called return true then call loginFragmentCallback.loginUser()
-     */
-    private void attemptSignIn() {
-        String email = emailField.getText().toString().trim();
-        String password = passwordField.getText().toString().trim();
-        if (areLoginDetailsValid(email, password)) {
-            toggleLoadingBar();
-            loginFragmentCallBack.loginUser(email, password);
-        }
-    }
 
     /**
      * Once the user has pressed the signInButton and
@@ -111,30 +116,9 @@ public class LoginFragment extends Fragment {
             signInButton.setVisibility(View.VISIBLE);
             loadingBar.setVisibility(View.INVISIBLE);
         }
+
     }
 
-
-    /**
-     * This method is used to change the color of both the editText
-     * and the hint once the user touches on that editText
-     * If the editText has focus change the color of the editText and
-     * the hint to green
-     * If the editText does not have focus change the color of the editText and
-     * the hint to white
-     */
-    private void customiseEditText(EditText editText, TextView hint) {
-        editText.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
-                editText.getBackground()
-                        .mutate().setColorFilter(Color.parseColor("#76B900"), PorterDuff.Mode.SRC_ATOP);
-                hint.setTextColor(Color.parseColor("#A5B253"));
-            } else {
-                editText.getBackground()
-                        .mutate().setColorFilter(Color.parseColor("#ffffff"), PorterDuff.Mode.SRC_ATOP);
-                hint.setTextColor(Color.parseColor("#ffffff"));
-            }
-        });
-    }
 
     /**
      * This method is used to check if the login
@@ -161,16 +145,17 @@ public class LoginFragment extends Fragment {
 
     }
 
-    private void displayErrorMessage(String message) {
+    @Override
+    public void displayErrorMessage(String message) {
         errorMessage.setVisibility(View.VISIBLE);
         errorMessage.setText(message);
     }
 
+    public interface LoginFragmentCallback {
+        void login(String email, String password);
 
-    public interface LoginFragmentCallBack {
         void showSignUpFragment();
-
-        void loginUser(String email, String password);
     }
+
 
 }

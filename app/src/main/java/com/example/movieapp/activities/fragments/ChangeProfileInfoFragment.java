@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +24,8 @@ import com.example.movieapp.activities.Model.Utilities;
  * either the email , or password , or nickname
  */
 
-public class ChangeDetailFragment extends Fragment {
+public class ChangeProfileInfoFragment extends Fragment {
+
     private EditText field1;
     private EditText field2;
     private TextView hint1;
@@ -33,48 +35,47 @@ public class ChangeDetailFragment extends Fragment {
     private ProgressBar loadingBar;
     private Button finishButton;
     private UpdateCredentialFragmentInterface updateCredentialFragmentInterface;
-    private static final String KEY_CREDENTIAL ="KEY_CREDENTIAL";
+    private static final String KEY_PROFILE_INFO = "KEY_PROFILE_INFO";
     public static final String KEY_EMAIL = "KEY_EMAIL";
     public static final String KEY_PASSWORD = "KEY_PASSWORD";
     public static final String KEY_NICKNAME = "KEY_NICKNAME";
 
 
-    public static ChangeDetailFragment newInstance(String credential) {
+    public static ChangeProfileInfoFragment newInstance(String credential) {
 
-        ChangeDetailFragment changeDetailFragment = new ChangeDetailFragment();
+        ChangeProfileInfoFragment changeProfileInfoFragment = new ChangeProfileInfoFragment();
 
         Bundle bundle = new Bundle();
-        bundle.putString(KEY_CREDENTIAL, credential);
-        changeDetailFragment.setArguments(bundle);
-        return changeDetailFragment;
+        bundle.putString(KEY_PROFILE_INFO, credential);
+        changeProfileInfoFragment.setArguments(bundle);
+        return changeProfileInfoFragment;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View layout = inflater.inflate(R.layout.fragment_change_detail, container, false);
+        View layout = inflater.inflate(R.layout.fragment_update_info, container, false);
 
         updateCredentialFragmentInterface = (UpdateCredentialFragmentInterface) getActivity();
 
         initializeUI(layout);
 
 
-        String detailToUpdate = getArguments().getString(KEY_CREDENTIAL);
+        String profileInfo = getArguments().getString(KEY_PROFILE_INFO);
 
-        switch (detailToUpdate) {
+
+        switch (profileInfo) {
 
             case KEY_EMAIL:
                 title.setText(getString(R.string.change_email));
-                hint2.setText(getString(R.string.new_email));
-                configureField(field2,hint2);
+                hint1.setText(getString(R.string.new_email));
                 attachListenerForEmail();
                 break;
 
             case KEY_NICKNAME:
                 title.setText(getString(R.string.change_nickname));
-                hint2.setText(getString(R.string.new_nickname));
-                configureField(field2,hint2);
+                hint1.setText(getString(R.string.new_nickname));
                 attachListenerForNickname();
                 break;
 
@@ -82,8 +83,8 @@ public class ChangeDetailFragment extends Fragment {
                 title.setText(getString(R.string.change_password));
                 hint1.setText(getString(R.string.new_password));
                 hint2.setText(getString(R.string.confirm_new_password));
-                configureField(field2,hint2);
-                configureField(field1,hint1);
+
+                configureSecondField();
                 attachListenerForPassword();
                 break;
         }
@@ -92,44 +93,47 @@ public class ChangeDetailFragment extends Fragment {
         return layout;
     }
 
+    private void configureSecondField() {
+        customiseField(field2, hint2);
+        field2.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        field2.setVisibility(View.VISIBLE);
+        hint2.setVisibility(View.VISIBLE);
+    }
+
     private void attachListenerForEmail() {
-        finishButton.setOnClickListener(button->{
+        finishButton.setOnClickListener(button -> {
             String email = field2.getText().toString().trim();
             if (!email.isEmpty() && Utilities.isEmailValid(email)) {
                 toggleLoadingBar();
                 updateCredentialFragmentInterface.updateEmail(email);
-            }
-            else {
-                displayErrorMessage(R.string.error_invalid_email);
+            } else {
+                displayErrorMessage(getString(R.string.error_invalid_email));
             }
         });
     }
 
     private void attachListenerForNickname() {
-        finishButton.setOnClickListener(button->{
-            String nickname = field2.getText().toString().trim();
+        finishButton.setOnClickListener(button -> {
+            String nickname = field1.getText().toString().trim();
             if (!nickname.isEmpty()) {
                 toggleLoadingBar();
                 updateCredentialFragmentInterface.updateNickname(nickname);
-            }
-            else
-                displayErrorMessage(R.string.error_invalid_nickname);
+            } else
+                displayErrorMessage(getString(R.string.error_invalid_nickname));
         });
     }
 
     private void attachListenerForPassword() {
-        finishButton.setOnClickListener(button->{
+        finishButton.setOnClickListener(button -> {
             String password = field1.getText().toString().trim();
             String secondPassword = field2.getText().toString().trim();
             if (password.isEmpty() || secondPassword.isEmpty())
-                displayErrorMessage(R.string.empty_password);
-            else
-                if (password.equals(secondPassword)) {
-                    toggleLoadingBar();
-                    updateCredentialFragmentInterface.updatePassword(password);
-                }
-            else
-                displayErrorMessage(R.string.password_match);
+                displayErrorMessage(getString(R.string.empty_password));
+            else if (password.equals(secondPassword)) {
+                toggleLoadingBar();
+                updateCredentialFragmentInterface.updatePassword(password);
+            } else
+                displayErrorMessage(getString(R.string.password_match));
         });
     }
 
@@ -139,28 +143,41 @@ public class ChangeDetailFragment extends Fragment {
         closeButton.setOnClickListener(button -> getFragmentManager().popBackStack());
 
         finishButton = layout.findViewById(R.id.finish_button_update_detail);
-        loadingBar=layout.findViewById(R.id.progress_bar_change_detail);
+        loadingBar = layout.findViewById(R.id.progress_bar_change_detail);
         title = layout.findViewById(R.id.new_credential_title);
         hint1 = layout.findViewById(R.id.new_credential_hint1);
         hint2 = layout.findViewById(R.id.new_credential_hint2);
         field1 = layout.findViewById(R.id.new_credential_field1);
         field2 = layout.findViewById(R.id.new_credential_field2);
         error_message = layout.findViewById(R.id.error_message_update_credentials);
+        customiseField(field1, hint1);
     }
 
-    private void toggleLoadingBar() {
-        loadingBar.setVisibility(View.VISIBLE);
-        finishButton.setVisibility(View.INVISIBLE);
+    public void toggleLoadingBar() {
+
+        if (loadingBar.getVisibility() == View.INVISIBLE) {
+            loadingBar.setVisibility(View.VISIBLE);
+            finishButton.setVisibility(View.INVISIBLE);
+        } else {
+            loadingBar.setVisibility(View.INVISIBLE);
+            finishButton.setVisibility(View.VISIBLE);
+        }
+        clearFields();
+    }
+
+    private void clearFields() {
+        field1.setText("");
+        field2.setText("");
     }
 
 
-    private void displayErrorMessage(int messageID) {
+    private void displayErrorMessage(String message) {
         error_message.setVisibility(View.VISIBLE);
-        error_message.setText(getString(messageID));
+        error_message.setText(message);
     }
 
 
-    private void configureField(EditText field,TextView hint) {
+    private void customiseField(EditText field, TextView hint) {
         field.setVisibility(View.VISIBLE);
         hint.setVisibility(View.VISIBLE);
         field1.setOnFocusChangeListener((v, hasFocus) -> {

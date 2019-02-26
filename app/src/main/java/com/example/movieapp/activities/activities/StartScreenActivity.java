@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.CustomDialog;
+import com.example.movieapp.activities.fragments.AuthenticationFragment;
 import com.example.movieapp.activities.fragments.LoginFragment;
 import com.example.movieapp.activities.fragments.SignUpFragment;
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,7 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class StartScreenActivity extends AppCompatActivity implements CustomDialog.CustomDialogInterface,
-        LoginFragment.LoginFragmentCallBack, SignUpFragment.SignUpFragmentCallback {
+        LoginFragment.LoginFragmentCallback, SignUpFragment.SignUpFragmentCallback {
 
     private FirebaseAuth firebaseAuth;
     private CustomDialog customDialog;
@@ -35,7 +36,7 @@ public class StartScreenActivity extends AppCompatActivity implements CustomDial
         displayLoginFragment();
 
         if (!isNetworkAvailable()) {
-            displayErrorDialog();
+            displayMessageDialog(getString(R.string.no_internet_connection));
         }
 
     }
@@ -61,16 +62,6 @@ public class StartScreenActivity extends AppCompatActivity implements CustomDial
 
     }
 
-    /**
-     * This method is called in order to
-     * show the signUpFragment
-     */
-    private void displaySignUpFragment() {
-        fragmentManager.beginTransaction()
-                .replace(R.id.start_screen_placeholder, signUpFragment)
-                .addToBackStack(null)
-                .commit();
-    }
 
     /**
      * This method is used to check weather or not there
@@ -83,9 +74,8 @@ public class StartScreenActivity extends AppCompatActivity implements CustomDial
 
     }
 
-    private void displayErrorDialog() {
-        customDialog = new CustomDialog(this, getString(R.string.no_internet_connection), this);
-        customDialog.setCanceledOnTouchOutside(false);
+    private void displayMessageDialog(String message) {
+        customDialog = new CustomDialog(this, message, this);
         customDialog.setButton1Message("OK");
         customDialog.show();
     }
@@ -120,7 +110,7 @@ public class StartScreenActivity extends AppCompatActivity implements CustomDial
                             displayVerificationEmailDialog();
                         }
                     } else {
-                        Toast.makeText(this, getString(R.string.error_invalid_login_details), Toast.LENGTH_LONG).show();
+                        loginFragment.displayErrorMessage(getString(R.string.error_invalid_login_details));
                     }
                     loginFragment.toggleLoadingBar();
                 });
@@ -140,12 +130,13 @@ public class StartScreenActivity extends AppCompatActivity implements CustomDial
         firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        Toast.makeText(this, getString(R.string.profile_created), Toast.LENGTH_SHORT).show();
+                        displayMessageDialog(getString(R.string.account_created));
                         firebaseAuth.getCurrentUser().sendEmailVerification();
                         updateNickname(nickname);
                     } else {
-                        Toast.makeText(this, getString(R.string.error_create_account), Toast.LENGTH_SHORT).show();
+                        signUpFragment.displayErrorMessage(getString(R.string.error_create_account));
                     }
+                    signUpFragment.toggleLoadingBar();
                 });
     }
 
@@ -198,24 +189,38 @@ public class StartScreenActivity extends AppCompatActivity implements CustomDial
         finish();
     }
 
-    @Override
-    public void showSignUpFragment() {
-        displaySignUpFragment();
-    }
 
     @Override
-    public void loginUser(String email, String password) {
+    public void login(String email, String password) {
         if (isNetworkAvailable()) {
             pushLoginRequest(email, password);
+        } else {
+            loginFragment.toggleLoadingBar();
+            displayMessageDialog(getString(R.string.no_internet_connection));
         }
+    }
+
+    /**
+     * This method is called in order to
+     * show the signUpFragment
+     */
+    @Override
+    public void showSignUpFragment() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.start_screen_placeholder, signUpFragment)
+                .addToBackStack(null)
+                .commit();
+
     }
 
     @Override
     public void signUp(String email, String password, String nickname) {
         if (isNetworkAvailable()) {
             pushSignUpRequest(email, password, nickname);
+        } else {
+            signUpFragment.toggleLoadingBar();
+            displayMessageDialog(getString(R.string.no_internet_connection));
         }
     }
-
-
 }

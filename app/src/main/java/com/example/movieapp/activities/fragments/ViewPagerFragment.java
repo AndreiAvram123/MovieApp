@@ -18,26 +18,27 @@ import java.util.ArrayList;
 
 public class ViewPagerFragment extends Fragment {
 
-    public static final String KEY_UPCOMING_MOVIES_ARRAY="KEY_UPCOMING_MOVIES_ARRAY";
-    public static final String KEY_POPULAR_MOVIES_ARRAY="KEY_UPCOMING_MOVIES_ARRAY";
+    public static final String KEY_UPCOMING_MOVIES_ARRAY = "KEY_UPCOMING_MOVIES_ARRAY";
+    public static final String KEY_POPULAR_MOVIES_ARRAY = "KEY_POPULAR_MOVIES_ARRAY";
     private ViewPager viewPager;
     private BaseFragment popularMoviesFragment;
     private BaseFragment upcomingMoviesFragment;
 
 
     /**
-     *  YOU NEED TO PUT THE ARRAYS INTO A BUNDLE
-     *  BECAUSE YOU ARE NOT SET THEM TO FIELDS VARIABLES
-     *  NON STATIC VARIABLES CANNOT BE ACCESSED FROM
-     *  A STATIC CONTEXT
+     * YOU NEED TO PUT THE ARRAYS INTO A BUNDLE
+     * BECAUSE YOU ARE NOT SET THEM TO FIELDS VARIABLES
+     * NON STATIC VARIABLES CANNOT BE ACCESSED FROM
+     * A STATIC CONTEXT
+     *
      * @param upcomingMovies
      * @param popularMovies
      * @return
      */
-    public static ViewPagerFragment newInstance(ArrayList<Movie> upcomingMovies,ArrayList<Movie> popularMovies){
+    public static ViewPagerFragment newInstance(ArrayList<Movie> upcomingMovies, ArrayList<Movie> popularMovies) {
         Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList(KEY_POPULAR_MOVIES_ARRAY,popularMovies);
-        bundle.putParcelableArrayList(KEY_UPCOMING_MOVIES_ARRAY,upcomingMovies);
+        bundle.putParcelableArrayList(KEY_POPULAR_MOVIES_ARRAY, popularMovies);
+        bundle.putParcelableArrayList(KEY_UPCOMING_MOVIES_ARRAY, upcomingMovies);
         ViewPagerFragment viewPagerFragment = new ViewPagerFragment();
         viewPagerFragment.setArguments(bundle);
         return viewPagerFragment;
@@ -47,17 +48,17 @@ public class ViewPagerFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View layout = inflater.inflate(R.layout.view_pager_fragment,container,false);
+        View layout = inflater.inflate(R.layout.view_pager_fragment, container, false);
 
         ArrayList<Movie> upcomingMovies = getArguments().getParcelableArrayList(KEY_UPCOMING_MOVIES_ARRAY);
         ArrayList<Movie> popularMovies = getArguments().getParcelableArrayList(KEY_POPULAR_MOVIES_ARRAY);
 
-        if(upcomingMovies!=null && popularMovies!=null){
+        if (upcomingMovies != null && popularMovies != null) {
             popularMoviesFragment = BaseFragment.newInstance(popularMovies);
             upcomingMoviesFragment = BaseFragment.newInstance(upcomingMovies);
             viewPager = layout.findViewById(R.id.viewPager);
             initializeViewPager();
-        }else {
+        } else {
             TextView noInternetMessage = layout.findViewById(R.id.error_text_view_pager);
             noInternetMessage.setVisibility(View.VISIBLE);
         }
@@ -69,10 +70,13 @@ public class ViewPagerFragment extends Fragment {
 
             @Override
             public Fragment getItem(int i) {
-                switch (i){
-                    case 0: return popularMoviesFragment;
-                    case 1: return upcomingMoviesFragment;
-                    default: return null;
+                switch (i) {
+                    case 0:
+                        return popularMoviesFragment;
+                    case 1:
+                        return upcomingMoviesFragment;
+                    default:
+                        return null;
                 }
             }
 
@@ -84,10 +88,13 @@ public class ViewPagerFragment extends Fragment {
             @Nullable
             @Override
             public CharSequence getPageTitle(int position) {
-                switch (position){
-                    case 0 :return "Popular Movies";
-                    case 1: return "Upcoming Movies";
-                    default: return null;
+                switch (position) {
+                    case 0:
+                        return "Popular Movies";
+                    case 1:
+                        return "Upcoming Movies";
+                    default:
+                        return null;
                 }
             }
         });

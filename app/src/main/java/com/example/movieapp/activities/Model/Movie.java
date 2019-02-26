@@ -6,6 +6,8 @@ import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Objects;
+
 @Entity(tableName = "movies")
 public class Movie implements Parcelable {
     @PrimaryKey
@@ -15,30 +17,31 @@ public class Movie implements Parcelable {
     private String releaseDate;
     private String posterPath;
     private double rating;
-    private String  genres;
-    private boolean isSaved ;
+    private String genres;
+    private boolean isSaved;
 
     /**
      * REQUIRED CONSTRUCTOR IN ORDER
      * TO USE THE PARCELABLE INTERFACE
+     *
      * @param in- the parcel used to
-     *          build the object
+     *            build the object
      */
     @Ignore
-    public Movie(Parcel in){
-         overview = in.readString();
-         title = in.readString();
-         releaseDate = in.readString();
-         posterPath = in.readString();
-         rating = in.readDouble();
-         movieID = in.readInt();
-         genres = in.readString();
-         isSaved =false;
+    public Movie(Parcel in) {
+        overview = in.readString();
+        title = in.readString();
+        releaseDate = in.readString();
+        posterPath = in.readString();
+        rating = in.readDouble();
+        movieID = in.readInt();
+        genres = in.readString();
+        isSaved = false;
     }
 
     @Ignore
     public Movie(String overview, String title, String releaseDate,
-                 String posterPath,double rating,int movieID,String genres) {
+                 String posterPath, double rating, int movieID, String genres) {
 
         this.overview = overview;
         this.title = title;
@@ -47,10 +50,11 @@ public class Movie implements Parcelable {
         this.rating = rating;
         this.movieID = movieID;
         this.genres = genres;
-        isSaved =false;
+        isSaved = false;
     }
+
     //default constructor for Room database
-    public Movie (){
+    public Movie() {
 
     }
 
@@ -65,24 +69,24 @@ public class Movie implements Parcelable {
     public String getOverview() {
         return overview;
     }
-    public String getShortOverview(){
-        if(overview.length()>110){
+
+    public String getShortOverview() {
+        if (overview.length() > 110) {
             StringBuilder stringBuilder = new StringBuilder();
-            for(int i =0;i < 110;i++){
+            for (int i = 0; i < 110; i++) {
                 stringBuilder.append(overview.charAt(i));
             }
-            int currentPosition = stringBuilder.length()- 1;
-            while(stringBuilder.charAt(currentPosition) !=' '){
+            int currentPosition = stringBuilder.length() - 1;
+            while (stringBuilder.charAt(currentPosition) != ' ') {
                 stringBuilder.deleteCharAt(currentPosition);
-                 currentPosition--;
+                currentPosition--;
             }
             return stringBuilder.toString() + "...";
 
-        }else {
+        } else {
             return overview;
         }
     }
-
 
 
     public boolean isSaved() {
@@ -145,13 +149,13 @@ public class Movie implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-         dest.writeString(overview);
-         dest.writeString(title);
-         dest.writeString(releaseDate);
-         dest.writeString(posterPath);
-         dest.writeDouble(rating);
-         dest.writeInt(movieID);
-         dest.writeString(genres);
+        dest.writeString(overview);
+        dest.writeString(title);
+        dest.writeString(releaseDate);
+        dest.writeString(posterPath);
+        dest.writeDouble(rating);
+        dest.writeInt(movieID);
+        dest.writeString(genres);
     }
 
     /**
@@ -171,4 +175,23 @@ public class Movie implements Parcelable {
             return new Movie[size];
         }
     };
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        } else {
+            if (obj instanceof Movie) {
+                Movie movie = (Movie) obj;
+                return movie.getMovieID() == this.movieID;
+
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(movieID);
+    }
 }

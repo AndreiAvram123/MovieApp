@@ -9,23 +9,23 @@
     >
 
     <EditText
-        android:clickable="false"
         android:id="@+id/new_credential_field1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
         android:backgroundTint="#ffffff"
+        android:clickable="false"
         android:ems="10"
-        android:inputType="textPassword"
+        android:inputType="text"
         android:textColor="#ffffff"
         android:textSize="20sp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/new_credential_hint2"
+        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/new_credential_hint1" />
 
     <TextView
         android:id="@+id/new_credential_title"
@@ -47,7 +47,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/ripple"
         android:text="@string/finish"
@@ -81,27 +81,30 @@
         android:layout_marginBottom="8dp"
         android:backgroundTint="#ffffff"
         android:ems="10"
-        android:inputType="textEmailAddress"
+        android:inputType="textPassword"
         android:textColor="#ffffff"
         android:textSize="20sp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/new_credential_title" />
+        app:layout_constraintTop_toBottomOf="@+id/new_credential_hint2"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/new_credential_hint2"
         style="@style/default_style_textView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
-        tools:text= "CONFIRM NEW PASSWORD"
-        app:layout_constraintBottom_toTopOf="@+id/new_credential_field2"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/new_credential_field1"
+        tools:text="CONFIRM NEW PASSWORD" />
 
 
     <TextView
@@ -110,35 +113,37 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="156dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="8dp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/new_credential_field1"
+        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/new_credential_title"
         tools:text="NEW PASSWORD" />
 
     <TextView
-        android:visibility="invisible"
         android:id="@+id/error_message_update_credentials"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:textSize="20sp"
+        android:layout_marginEnd="16dp"
         android:textColor="#DB3F34"
+        android:textSize="20sp"
         android:textStyle="bold"
-        tools:text="Enter a valid email address"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/new_credential_field2" />
+        app:layout_constraintTop_toBottomOf="@+id/new_credential_field2"
+        tools:text="Enter a valid email address" />
 
     <ProgressBar
         android:id="@+id/progress_bar_change_detail"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/finish_button_update_detail"
         app:layout_constraintEnd_toEndOf="@+id/finish_button_update_detail"
         app:layout_constraintStart_toStartOf="@+id/finish_button_update_detail"

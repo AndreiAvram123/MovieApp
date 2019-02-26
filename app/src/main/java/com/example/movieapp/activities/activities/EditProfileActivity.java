@@ -12,75 +12,67 @@ import com.example.movieapp.R;
 import com.example.movieapp.activities.Model.CustomDialog;
 import com.example.movieapp.activities.Model.Utilities;
 import com.example.movieapp.activities.fragments.EditProfileFragment;
-import com.example.movieapp.activities.fragments.ChangeDetailFragment;
+import com.example.movieapp.activities.fragments.ChangeProfileInfoFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
-public class EditProfileActivity extends AppCompatActivity implements EditProfileFragment.EditProfileFragmentInterface,
-        ChangeDetailFragment.UpdateCredentialFragmentInterface , CustomDialog.CustomDialogInterface {
+public class EditProfileActivity extends AppCompatActivity implements
+        ChangeProfileInfoFragment.UpdateCredentialFragmentInterface, CustomDialog.CustomDialogInterface {
 
     private FragmentManager fragmentManager;
     private FirebaseUser firebaseUser;
-    private  CustomDialog customDialog;
+    private CustomDialog customDialog;
+    private EditProfileFragment editProfileFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
-         if(Utilities.isNetworkAvailable(this)) {
-             firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-             initializeUI();
-             makeActivityFullscreen();
-         }else {
-             initializeViewsForOfflineMode();
+        if (Utilities.isNetworkAvailable(this)) {
+            firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+            initializeUI();
+            makeActivityFullscreen();
+        } else {
+            initializeViewsForOfflineMode();
 
-         }
+        }
 
     }
 
     private void initializeViewsForOfflineMode() {
-        TextView noInternetMessage  = findViewById(R.id.error_message_edit_profile);
+        TextView noInternetMessage = findViewById(R.id.error_message_edit_profile);
         noInternetMessage.setVisibility(View.VISIBLE);
         ImageView backImage = findViewById(R.id.back_image_edit_profile);
         backImage.setOnClickListener(image -> finish());
     }
 
 
-    private  void  makeActivityFullscreen(){
+    private void makeActivityFullscreen() {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
     }
 
     private void showErrorDialog() {
-         customDialog = new CustomDialog(this,
-                        getString(R.string.operation_unsuccessful),this);
-         customDialog.setButton1Message("OK");
-         customDialog.show();
+        customDialog = new CustomDialog(this,
+                getString(R.string.operation_unsuccessful), this);
+        customDialog.setButton1Message("OK");
+        customDialog.show();
     }
 
 
-
-
-    public void initializeUI(){
+    public void initializeUI() {
         fragmentManager = getSupportFragmentManager();
+        editProfileFragment = EditProfileFragment.newInstance();
+
         fragmentManager.beginTransaction()
-                        .replace(R.id.fragment_placeholder_edit_profile,EditProfileFragment.newInstance())
-                        .commit();
+                .replace(R.id.fragment_placeholder_edit_profile, editProfileFragment)
+                .commit();
 
 
     }
-    private void showChangeDetailFragment(String credential) {
-         fragmentManager.beginTransaction()
-                        .replace(R.id.fragment_placeholder_edit_profile,
-                                ChangeDetailFragment.newInstance(credential))
-                        .addToBackStack(null)
-                        .commit();
-
-    }
-
 
 
     /**
@@ -90,7 +82,7 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
      */
     private void showMessageDialog() {
         customDialog = new CustomDialog(this,
-                getString(R.string.operation_successful),this);
+                getString(R.string.operation_successful), this);
         customDialog.setButton1Message("OK");
         customDialog.show();
     }
@@ -100,70 +92,49 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
      */
 
 
-    @Override
-    public void changeEmail() {
-         showChangeDetailFragment(ChangeDetailFragment.KEY_EMAIL);
-    }
-
-
-    @Override
-    public void changePassword() {
-        showChangeDetailFragment(ChangeDetailFragment.KEY_PASSWORD);
-    }
-
-
-    @Override
-    public void changeNickname() {
-       showChangeDetailFragment(ChangeDetailFragment.KEY_NICKNAME);
-
-    }
-
-    @Override
-    public void changeProfilePicture() {
-
-    }
-
     /**
      * THE INTERFACE METHOD IS CALLED FROM THE
      * UpdateCredentialsFragment
-     *
+     * <p>
      * Update the email in the Firebase database
      * IF THE TASK IS successful display a message to the
      * user informing him that everything has gone well
      * OTHERWISE display and error dialog
+     *
      * @param newEmail
      */
     @Override
     public void updateEmail(String newEmail) {
-        firebaseUser.updateEmail(newEmail).addOnCompleteListener(task ->{
-            if(task.isSuccessful()){
+        firebaseUser.updateEmail(newEmail).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
                 showMessageDialog();
-                getSupportFragmentManager().popBackStack();
-            }else {
+            } else {
                 showErrorDialog();
             }
+            editProfileFragment.toggleProfileInfoBar();
         });
     }
 
     /**
      * THE INTERFACE METHOD IS CALLED FROM THE
      * UpdateCredentialsFragment
-     *
+     * <p>
      * Update the password in the Firebase database
      * IF THE TASK IS successful display a message to the
      * user informing him that everything has gone well
      * OTHERWISE display and error dialog
+     *
      * @param newPassword
      */
     @Override
     public void updatePassword(String newPassword) {
-        firebaseUser.updatePassword(newPassword).addOnCompleteListener(task->{
-            if(task.isSuccessful()){
+        firebaseUser.updatePassword(newPassword).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
                 showMessageDialog();
-                getSupportFragmentManager().popBackStack();
-            }else {
+            } else {
                 showErrorDialog();
             }
+            editProfileFragment.toggleProfileInfoBar();
         });
     }
 
@@ -171,16 +142,17 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
     /**
      * THE INTERFACE METHOD IS CALLED FROM THE
      * UpdateCredentialsFragment
-     *
+     * <p>
      * This method is used in order to change the nickname
      * of the current user in the Firebase database
      * We need to use a UserProfileChangeRequest object in
      * order to use the update .The object is created
      * using an inner class named Builder
-     *
+     * <p>
      * IF THE TASK IS successful display a message to the
-     *      * user informing him that everything has gone well
-     *      * OTHERWISE display and error dialog
+     * * user informing him that everything has gone well
+     * * OTHERWISE display and error dialog
+     *
      * @param newNickname
      */
     @Override
@@ -188,12 +160,12 @@ public class EditProfileActivity extends AppCompatActivity implements EditProfil
         firebaseUser.updateProfile(new UserProfileChangeRequest.Builder()
                 .setDisplayName(newNickname)
                 .build()).addOnCompleteListener(task -> {
-            if(task.isSuccessful()){
+            if (task.isSuccessful()) {
                 showMessageDialog();
-                getSupportFragmentManager().popBackStack();
-            }else {
+            } else {
                 showErrorDialog();
             }
+            editProfileFragment.toggleProfileInfoBar();
         });
 
     }
