@@ -332,7 +332,7 @@ public class MainActivity extends AppCompatActivity
     private void showViewPagerFragment() {
         fragmentManager.beginTransaction()
                 .replace(R.id.placeholder_fragment_main, ViewPagerFragment.newInstance(upcomingMovies, popularMovies))
-                .commit();
+                 .commitAllowingStateLoss();
     }
 
     /**
