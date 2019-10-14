@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity
      * The savedMovies IS NOT NULL,it's just empty when
      * there are no movies in the database
      */
+
     private void getSavedMoviesFromDatabase() {
         Thread backgroundThread = new Thread(
                 () -> savedMovies = databaseInterface.getAllMovies()
@@ -120,7 +121,6 @@ public class MainActivity extends AppCompatActivity
         homeButton = findViewById(R.id.home_back);
         homeButton.setOnClickListener(view -> toggleHomeButton());
 
-
         fragmentManager = getSupportFragmentManager();
 
         makeActivityFullscreen();
@@ -130,11 +130,9 @@ public class MainActivity extends AppCompatActivity
         showViewPagerFragment();
     }
 
-
     private void makeActivityFullscreen() {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
     }
 
     /**
@@ -146,7 +144,6 @@ public class MainActivity extends AppCompatActivity
         TextView nicknameTextView = header_layout.findViewById(R.id.nickname_drawer);
         nicknameTextView.setText(nickname);
     }
-
 
     /**
      * This method is used to define actions when the user
@@ -195,7 +192,6 @@ public class MainActivity extends AppCompatActivity
             return false;
         });
     }
-
 
     private void startSettingsActivity() {
         Intent intent = new Intent(this, SettingsActivity.class);

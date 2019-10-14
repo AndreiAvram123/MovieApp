@@ -42,7 +42,6 @@ public class SearchableActivity extends AppCompatActivity
 
         makeActivityFullscreen();
 
-
         if (Utilities.isNetworkAvailable(this)) {
             initializeDatabase();
             getSavedMovies();
@@ -53,12 +52,11 @@ public class SearchableActivity extends AppCompatActivity
                 pushRequest(getUriForRequest(query.trim()));
 
             }
-        } else {
+        }else{
             no_results_error.setVisibility(View.VISIBLE);
             no_results_error.setText(
                     R.string.no_internet_connection);
         }
-
     }
 
     private void initializeUI() {
@@ -110,7 +108,6 @@ public class SearchableActivity extends AppCompatActivity
     private void makeActivityFullscreen() {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
     }
 
     private void pushRequest(String uri) {
@@ -125,7 +122,6 @@ public class SearchableActivity extends AppCompatActivity
 
     private void updateUI(String responseData) {
         ArrayList<Movie> searchedMovies = Utilities.processJSONFormat(responseData);
-
         if (searchedMovies.isEmpty()) {
             no_results_error.setVisibility(View.VISIBLE);
             no_results_error.setText(getString(R.string.error_no_result));
@@ -148,7 +144,6 @@ public class SearchableActivity extends AppCompatActivity
      * from the query with the + sign
      * The request does not work if we use empty
      * spaces
-     *
      * @param query - the query from the searchView
      * @return
      */
